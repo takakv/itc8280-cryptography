@@ -1,0 +1,82 @@
+\documentclass[usegeometry,parskip=half]{scrartcl}
+
+\usepackage[
+  a4paper,
+  top=25mm,
+  bottom=25mm,
+  left=25mm,
+  right=25mm,
+  footskip=10mm
+]{geometry}
+
+\usepackage[hidelinks]{hyperref}
+\pagenumbering{gobble}
+
+\usepackage{microtype}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+
+\setmainfont{Stix Two Text}
+\setsansfont{TeX Gyre Heros}
+\setmathfont{Stix Two Math}
+
+\begin{document}
+\textbf{ITC8280 Fundamentals of Cryptography --- evaluation criteria}
+
+Your final grade is determined as follows:
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ccc}
+    40\% - homework assignments & 10\% - Cryptohack & 50\% - final exam
+  \end{tabular}
+\end{table}
+
+To pass (i.e. get a non-zero grade), you must satisfy the following:
+\begin{enumerate}
+  \item You must cumulatively score at least 50\% (20/40) on your homework assignments.
+  \begin{itemize}
+    \item There will be at most $5$ homework assignments.
+		You will have until the end (Sunday at 23:59 local time) of the 14\textsuperscript{th} week to submit your homework.
+    \item There will be no extensions, except potentially for the last homework assignment.
+    Each assignment that is not submitted by the final deadline is worth 0 points.
+    \item Grading and grace clause: each assignment will have a soft deadline that is set at least 2 weeks after the assignment publication date.
+    \begin{itemize}
+      \item If you submit your assignment by then, I will review it within two weeks.
+      If I find mistakes, you will have one week to fix them to gain back up to half of the lost points.
+      E.g. for a homework originally graded 7/10, you can fix it to get up to 8.5/10.
+      \item For assignments submitted after the soft deadline, I might review them during the semester, or wait until the final deadline.
+      No grace clause is possible after the soft deadline.
+    \end{itemize}
+    \item When you are stuck:
+    \begin{itemize}
+      \item You may turn to me for help after classes/by email/by Discord.
+      \item You may give pointers to each other, but not share solutions.
+    \end{itemize}
+  \end{itemize}
+  \item {Attend the midterm (Moodle exam)}
+  \begin{itemize}
+    \item The midterm is mandatory, but does not affect your final grade.
+		Consider it a `reality check' for your knowledge.
+    \item Attendance $=$ getting at least one point on the midterm.
+  \end{itemize}
+  \item Attend and pass the in-person exam.
+  \begin{itemize}
+    \item 2h closed book written exam with a handwritten one-sided A4 cheat-sheet allowed.
+    \item Alternatively: 30min oral exam (max 10 students), no cheat-sheet allowed.
+    \item You must pass \emph{each} of the 6 sections in the exam ($\ge$ 3 points per section).
+    \item You must get at least 1/3 of the exam points to pass the exam.
+    \item 1 retake allowed.
+    \item All previous requirements must be satisfied to attend.
+  \end{itemize}
+\end{enumerate}
+
+The reasons for the above criteria and for the closed book exam are explained in the intro lecture.
+
+\vspace*{\parskip}
+
+Violation of good academic practice:
+
+Copying someone's homework, plagiarism, non-approved AI use, etc.\footnotemark{}, fails you the course and I will report you.
+
+\footnotetext{Chapter 9 of TalTech's academic policies: \url{https://taltech.ee/en/academic-policies-taltech}}
+\end{document}
