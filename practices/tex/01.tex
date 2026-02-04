@@ -31,11 +31,6 @@
   Print the ciphertext in hexadecimal encoding.
 \end{task}
 
-\begin{task}{Frequency analysis}
-  For both the plaintext and the ciphertext of the shift cipher, plot the letter/symbol frequencies on a graph, e.g. with \texttt{matplotlib}\footnote{\url{https://matplotlib.org}}.
-  Clearly, the shift cipher does not provide diffusion.
-\end{task}
-
 \begin{task}{a--z shift cipher}
   Implement a shift cipher (encryption and decryption functions) for characters a--z in python3.
   That is, messages should be all lowercase and contain only letters of the English alphabet, e.g. \texttt{helloworld}.
@@ -47,5 +42,10 @@
   Tip:
   recall that in ASCII encoding, consecutive characters of the English alphabet are mapped to consecutive integers.
   In python3, you can get the integer value of an ASCII character using the \texttt{ord} function\footnote{\url{https://docs.python.org/3/library/functions.html\#ord}}.
+\end{task}
+
+\begin{task}{Frequency analysis}
+  For both the plaintext and the ciphertext of the a-z shift cipher, plot the letter/symbol frequencies on a graph, e.g. with \texttt{matplotlib}\footnote{\url{https://matplotlib.org}}.
+  Clearly, the shift cipher does not provide diffusion.
 \end{task}
 \end{document}
