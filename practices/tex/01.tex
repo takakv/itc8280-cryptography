@@ -24,13 +24,6 @@
   For example, what about an algorithm that must be executed sequentially?
 \end{task}
 
-\begin{task}{Binary shift cipher}
-  Because it is inconvenient to read long messages without spaces or special characters, and we may want support for more encodings, implement the shift cipher on bytes.
-  That is, plaintexts of sequence of bytes, e.g. obscure unicode characters, should be able to be encrypted.
-
-  Print the ciphertext in hexadecimal encoding.
-\end{task}
-
 \begin{task}{a--z shift cipher}
   Implement a shift cipher (encryption and decryption functions) for characters a--z in python3.
   That is, messages should be all lowercase and contain only letters of the English alphabet, e.g. \texttt{helloworld}.
@@ -47,5 +40,12 @@
 \begin{task}{Frequency analysis}
   For both the plaintext and the ciphertext of the a-z shift cipher, plot the letter/symbol frequencies on a graph, e.g. with \texttt{matplotlib}\footnote{\url{https://matplotlib.org}}.
   Clearly, the shift cipher does not provide diffusion.
+\end{task}
+
+\begin{task}{Binary shift cipher}
+  Because it is inconvenient to read long messages without spaces or special characters, and we may want support for more encodings, implement the shift cipher on bytes.
+  That is, plaintexts of sequence of bytes, e.g. obscure unicode characters, should be able to be encrypted.
+
+  Print the ciphertext in hexadecimal encoding.
 \end{task}
 \end{document}
