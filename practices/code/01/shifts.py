@@ -7,8 +7,8 @@ def validate_string(s: str):
     if s.lower() != s:
         raise RuntimeError("input must only contain lowercase characters")
 
-    if not s.isalnum():
-        raise RuntimeError("input must only contain alphanumeric characters (a-z)")
+    if not s.isalpha():
+        raise RuntimeError("input must only contain alphabetic characters (a-z)")
 
 
 def shift_encrypt(pt: str, key: int) -> str:
@@ -64,7 +64,7 @@ def shiftb_encrypt(pt: bytes, key: int) -> bytes:
     # Implementation details really are annoying...
     ct: list[int] = []
     # The largest byte value is 255, so you can think of the alphabet as
-    # bytes 0--255. We no longer care about encoding (functions take care of
+    # bytes 0-255. We no longer care about encoding (functions take care of
     # that), so we can just apply the mod operator.
     for b in pt:
         ct.append((b + key) % 256)
