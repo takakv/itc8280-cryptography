@@ -48,6 +48,15 @@
   \vspace*{1em}
   \textbf{Task~\thetask{} --- {#1}}\par}{}
 
+\newenvironment*{demo}[1]{%
+  \refstepcounter{task}%
+  \vspace*{1em}
+  \textbf{Demo~\thetask{} --- {#1}}\par}{}
+
+\newenvironment*{challenge}[1]{%
+  \vspace*{1em}
+  \textbf{Challenge --- {#1}}\par}{}
+
 %\makeatletter
 %\newcommand\task{\@startsection {task}{1}{\z@}%
 %                                {0pt}%
