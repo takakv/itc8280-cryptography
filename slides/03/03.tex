@@ -466,12 +466,12 @@
     \begin{itemize}
       \item Consult authoritative sources (e.g. NIST, ANSSI, BSI)
       \item Not always clear cut
-      \item Symmetric cryptosystems:
-      \par
-      \begin{itemize}
-        \item classical strength = key size 
-        \item quantum resistance = half of the key size
-      \end{itemize}
+    \end{itemize}
+    \par
+    \item For symmetric cryptosystems:
+    \begin{itemize}
+      \item classical strength = key size 
+      \item quantum resistance = half of the key size
     \end{itemize}
   \end{itemize}
 \end{frame}
@@ -549,25 +549,24 @@
 \begin{frame}{Symmetric encryption recap}
   Use AE(AD) constructions whenever possible!
   \begin{itemize}[<+(1)->]
-    \item Do not reuse IVs/nonces
+    \item Do not reuse nonces: breaks confidentiality
     
     \vspace*{0.5em}
 
-    \item AES-GCM should typically be the first choice
+    \item AES-GCM should be your default choice
     \begin{itemize}
-      \item Key sizes: 128, 192, 256 bits, with AES-256 being quantum safe
-      \item 96-bit IV (standard), longer IVs may be supported
-      \item NB! Alternatives may be necessary (e.g. data limits)
+      \item 128/192/256-bit keys, 96-bit nonce (standard)
+      \item Brittle: nonce reuse enables universal forgeries
+      \item May be slow without AES hardware support
     \end{itemize}
 
     \vspace*{0.5em}
 
-    \item ChaCha20-Poly1305 otherwise
+    \item ChaCha20-Poly1305 is the primary alternative
     \begin{itemize}[<+(1)->]
-      \item e.g. systems without AES hardware support
-      \item 256-bit key: quantum safe
-      \item 96-bit nonce (192-bit nonce for XChaCha20-Poly1305)
-      \item Caveat: not standardised by NIST (not FIPS-compliant)
+      \item Fast without hardware support
+      \item 256-bit key, 96-bit nonce (192-bit XChaCha20)
+      \item Not standardised by NIST (not FIPS compliant)
     \end{itemize}
   \end{itemize}
 \end{frame}
