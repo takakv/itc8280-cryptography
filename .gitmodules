@@ -1,0 +1,3 @@
+[submodule "homework/private"]
+	path = homework/private
+	url = git@github.com:takakv/itc8280-hw-solutions.git
