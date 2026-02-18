@@ -8,10 +8,13 @@ def main():
     aead = ChaCha20Poly1305(key)
     nonce = secrets.token_bytes(12)
 
-    words = ["...", "..."]
-    assert all(len(word) == len(words[0]) for word in words)
+    word1 = "..."
+    word2 = "..."
 
-    for word in words:
+    assert len(word1) == len(word2)
+    assert word1 != word2
+
+    for word in [word1, word2]:
         ciphertext = aead.encrypt(nonce, word.encode(), None)
         print(ciphertext.hex())
 
