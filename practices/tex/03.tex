@@ -1,0 +1,66 @@
+\documentclass{practice}
+\usepackage{verbatim}
+
+\title{3}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{task}{AES test vectors}
+  During the lectures, we learnt that AES is standardised by NIST.
+
+  NIST has a program called the \href{https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program/block-ciphers}{\enquote{Cryptographic Algorithm Validation Program}} (CAVP) and part of it are testing specifications and \emph{test vectors} for block ciphers.
+
+  Fetch some test vectors from their website, and use them to test OpenSSL's AES implementation.
+  Recall that in practice, you should never provide the encryption key/password directly on the CLI in a manner which saves it into the CLI history.
+\end{task}
+
+\begin{task}{Your personal Tux}
+  For this task, you will need \href{https://imagemagick.org/}{\texttt{imagemagick}}.
+
+  First, fetch \href{https://taltech.ee/brand}{\textit{TalTech's logo}}, or some other image file of your choice.
+  The image file should be of a fairly high resolution, preferably of at least 1000px in in both dimensions, and contain large sections of the same colour.
+
+  For practicality, convert the logo to BMP, a lossless data format, with:
+  \begin{Verbatim}
+magick logo.jpg bmp3:logo.bmp
+  \end{Verbatim}
+
+  Encrypt the image with AES in ECB mode with OpenSSL.
+
+  Before you can visualise the image, you must restore the now encrypted 54-byte BMP header, otherwise the OS / file viewer does not know how to open/display the image.
+  You can do this using the \texttt{dd} tool to overwrite the starting bytes of the encrypted image.
+  \begin{Verbatim}
+dd if=logo.bmp of=logo.ecb.bmp bs=54 count=1 conv=notrunc
+  \end{Verbatim}
+
+  Try the same thing with CBC and CTR mode.
+  Visualise the images.
+
+  Finally, generate an image of identical dimensions from crypto-random data.
+  For this, first get the original image's filesize:
+  \begin{Verbatim}
+FILESIZE=$(wc -c < logo.bmp | tr -d '[:space:]')
+  \end{Verbatim}
+
+  Generate that many random bytes with OpenSSL:
+  \begin{Verbatim}
+openssl rand -out random.bmp "$FILESIZE"
+  \end{Verbatim}
+
+  Finally, replace the header as previously:
+  \begin{Verbatim}
+dd if=logo.bmp of=random.bmp bs=54 count=1 conv=notrunc
+  \end{Verbatim}
+\end{task}
+
+\begin{task}{A doc a day keeps mistakes away}
+  Visit \href{https://cryptography.io/en/latest/}{\textit{pyca/cryptography}}'s documentation page.
+  Identify the modules which allow you to use symmetric encryption, authenticated symmetric encryption, block cipher modes of operation, and symmetric padding.
+
+  Pay close attention to the various warnings and notices.
+  What do you think, should the \enquote{Hazardous Materials} module warning apply to you?
+\end{task}
+
+\end{document}
