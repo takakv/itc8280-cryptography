@@ -1,0 +1,30 @@
+\documentclass[parskip=half]{scrartcl}
+
+\usepackage{crysymb}
+
+\usepackage{booktabs}
+
+\usepackage{microtype}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+
+\setmainfont{Stix Two Text}
+\setsansfont{TeX Gyre Heros}
+\setmathfont{Stix Two Math}
+
+\begin{document}
+Week 2 acronyms and notation
+
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular*}{\textwidth}{@{}ll@{}}
+  RNG & Random Number Generator\\
+  TRNG & True Random Number Generator\\
+  PRNG & Pseudo-Random Number Generator\\
+  CSPRNG & Cryptographically Secure Pseudo-Random Number Generator\\
+  XOR, $\oplus$ & Exclusive OR\\
+  OTP & One Time Pad\\
+  IND-CPA & INDistinguishability under Chosen Plaintext Attack\\
+  $n \getsu \{0,1\}^l$ & Sample (generate) uniformly at random an $l$-bit bitstring $n$\\
+  $\lvert{n\rvert} = l$ & $n$ is of length $l$ bits
+\end{tabular*}
+\end{document}
