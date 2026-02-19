@@ -1,0 +1,238 @@
+\documentclass{homework}
+
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+\newcommand*{\ENC}{\mathsf{Enc}}
+
+\usepackage{listings}
+
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\usepackage{fancyvrb}
+\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\partopsep}{0pt}}
+
+\title{01}
+
+\begin{document}
+\maketitle
+
+\textbf{Organisational details}
+
+\begin{itemize}
+  \item Include in your report approximately how long the homework took you.
+  \item You must follow the submission instructions outlined on GitLab.
+  \item If the GitLab pipeline does not succeed, I will not grade your assignment (you will receive 0).
+  The same applies if the Markdown report is illegibly formatted or if you miss the final submission deadline.
+  \item I will provide feedback on Discord and/or GitLab.
+  Check both after receiving your grade.
+  \begin{itemize}
+    \item My initial feedback may be quite minimal as there are so many of you.
+    However, you can request additional feedback.
+    Specific questions are also welcome.
+    \item Do not share the feedback you receive, as this may give others an unfair advantage.
+  \end{itemize}
+  \item Grace clause submission deadline: 07.03.2026 23:59 EET.
+  \begin{itemize}
+    \item The grace clause applies only if you submit the full work (all tasks) by the soft deadline and the GitLab pipeline succeeds.
+    \item You have one week from receiving the feedback to fix and resubmit your improved work.
+    You may regain up to (but not necessarily) half of the lost points.
+  \end{itemize}
+  \item You may share hints with each other, but not answers or code.
+  Ask questions in the server if they could benefit everyone.
+  \item You may -- and I encourage you to -- ask me questions.
+  \item You may use AI as assistance, but not to solve the tasks themselves.
+  \begin{itemize}
+    \item Acceptable: e.g. checking your understanding, asking how to loop in Python.
+    \item Not acceptable: e.g. generating code logic, library use, or crypto operations.
+    \item If you use AI in any form, including for rewording, state in your report where and what you used it for.
+    \item I recommend asking in the server or contacting me instead of using AI.
+  \end{itemize}
+  \item If I catch you plagiarising, copying, or using AI for code logic, I will report you to the faculty and fail you for the course.
+  \begin{itemize}
+    \item If during the exam you are unable to explain material for which you received homework credit, I may ask you to explain your work.
+    \item If you cannot convince me that the homework is your own work, I will report you to the faculty and fail you.
+  \end{itemize}
+\end{itemize}
+
+\newpage
+
+\begin{center}
+  Theory tasks
+\end{center}
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item \textbf{Please do not use AI for the theoretical part.}
+  Challenge your understanding and look for additional written sources if the lecture and provided materials are not enough.
+  Critical thinking and clear communication are skills -- use them or lose them.
+  \item You must reference all external materials you rely on, including AI tools, if you choose to use them anyway.
+\end{itemize}
+
+\begin{task}{A little about you}
+  What role do you currently work in, or hope to work in?
+  Is cryptography relevant to your work, or do you expect it to become relevant?
+  What do you hope to gain from this course?
+
+  \textit{Just a few sentences (3--4) is fine.}
+\end{task}
+
+\begin{task}{A choice}
+  Select one of the two tasks below.
+
+  \textit{Task A.}
+  What programming language do you use most / are you most comfortable with?
+  For that language, list the following:
+  \begin{enumerate}
+    \item The standard library / namespace / module (if any) for cryptographic randomness.
+    \item The standard library / namespace / module (if any) for encryption.
+    \item Three well-regarded third-party libraries for cryptographic functionality (any kind).
+    \item One cool cryptographic library, tool, or project not already listed.
+  \end{enumerate}
+
+  \textit{Task B.}
+  Benchmark how long it takes for your computer to iterate over the 32-bit space.
+  Based on that, estimate how long it would take to cover the 128-bit space.
+
+  Show your calculations and give the final result in seconds and years.
+\end{task}
+
+\begin{task}{A pledge}
+  \enquote{%
+    I understand that I should not implement my own cryptography for any production system, i.e. for any purpose other than personal learning.
+    I also understand that any implementations done during this course are for learning purposes only and are not for real-world use.
+    I understand that due diligence is crucial.%
+  }
+
+  \textit{Answer with yes/no.}
+\end{task}
+
+\newpage
+
+\begin{task}{RNGarök}
+  Search for one example of a real-world RNG failure and its consequences.
+  In a few short sentences, state:
+  \begin{itemize}
+    \item the system or product,
+    \item what went wrong,
+    \item what the impact was, and
+    \item what should have been done instead.
+  \end{itemize}
+
+  Include your source(s).
+  It does not have to be a research article; a popular science blog or news post is fine.
+\end{task}
+
+\begin{task}{Another Encryption Standard}
+  Skim the public comments submitted in response to the call for comments on \href{https://csrc.nist.gov/pubs/sp/800/197/iprd}{NIST SP 800-197}.
+  You do not need to read all comments in full; it is fine to focus on only a few.
+
+  Identify and briefly explain, in your own words:
+  \begin{itemize}
+    \item two potential advantages of standardising and adopting Rijndael-256, and
+    \item two potential disadvantages.
+  \end{itemize}
+
+  The goal of the task is to familiarise you with the \enquote{Call for Comments} process.
+  The backgrounds and expertise of authors vary, which is why the process is important.
+  The same is true for readers, and comments can be useful even if you do not understand some (or even most) parts.
+\end{task}
+
+\newpage
+\setcounter{task}{0}
+
+\begin{center}
+  Practical tasks
+\end{center}
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item I must be able to run your program with Python 3.14 and OpenSSL v3.6.1\footnotemark{}.
+  \footnotetext{You may use older versions of Python and OpenSSL as long as they are interoperable with mine.}
+  \item The GitLab pipeline must succeed before you submit your assignment.
+  \item You may not import any third-party module other than \texttt{cryptography}.
+  You are free to import any built-in module.
+  If you feel the need to import another third-party module, please check with me beforehand!
+  \item All errors must be handled: print a descriptive message starting with \enquote{Handled:} and exit with error code \texttt{1}.
+  Filesystem errors (e.g. file read/write errors) need not be handled.
+  \item You must identify potential edge cases yourself.
+  You may not ask an AI to implement them or identify them for you.
+  \item You may change anything in the template files, unless specified otherwise, as long as the GitLab pipeline succeeds.
+\end{itemize}
+
+\begin{task}{ECB CPA}
+  Task template file: \texttt{ecb\_cpa\_template.py}
+
+  Implement the function
+  \begin{Verbatim}
+challenger(m0: bytes, m1: bytes) -> bytes | None
+  \end{Verbatim}
+  This function must implement the IND-CPA challenger for AES-ECB with 256-bit keys.
+  For each call, the challenger uniformly selects either \texttt{m0} or \texttt{m1}, securely generates a fresh key, encrypts the selected message, and returns the ciphertext.
+
+  If the messages do not satisfy the requirements for the (symmetric) IND-CPA game, or any other functional requirements, the challenger aborts the game by returning \texttt{None}.
+
+  Implement the function
+  \begin{Verbatim}
+distinguisher() -> bool
+  \end{Verbatim}
+
+  The function must implement the IND-CPA adversary.
+  The adversary does not have access to the challenger's encryption key or its choice, and must be able to win the game with a single challenger call.
+  
+  The adversary returns \texttt{True} if it considers \texttt{m1} to be encrypted, \texttt{False} otherwise.
+\end{task}
+
+\newpage
+
+\begin{task}{CBC CCA}
+  Task template file: \texttt{cbc\_cca\_template.py}
+
+  Implement the function
+  \begin{Verbatim}
+distinguisher() -> bool
+  \end{Verbatim}
+
+  The function must implement the IND-CCA2 adversary for AES-CBC with 128-bit keys.
+  The adversary does not have access to the challenger's encryption key or its choice.
+  
+  The adversary returns \texttt{True} if it considers \texttt{m1} to be encrypted, \texttt{False} otherwise.
+
+  Write in the report how you came up with your attack.
+  Include also brief descriptions of ideas that you considered or tried, but which did not work.
+  E.g. you can make a chronological list of ideas.
+  I recommend that you write them down as you go, rather than try to recall them in the end.
+\end{task}
+
+\begin{task}{Twice the fun}
+  Task template file: \texttt{chachatwo\_template.py}\\
+  Supporting file: \texttt{ccpoly\_encrypt.py}
+
+  \texttt{chachatwo.py} is a program that takes as input two hex-encoded ChaCha20-Poly1305 ciphertexts.
+  Assuming that they were encrypted with the same key and tag, it recovers the original plaintexts with the help of a wordlist.
+  Implement it based on the template.
+
+  The wordlist is assumed to be a plaintext file where each row contains one word.
+
+  Use the program to recover the two words from the authenticated ciphertexts:
+  \begin{itemize}
+  \item \texttt{e1d193c3e71e5bdee35b0fb9a129ca76de64a57f8d}
+  \item \texttt{e0df8bcff162933d5edbbb6c5204763ddb0b6805e1}
+  \end{itemize}
+  The original words are common English words.
+  Include them both in your report.
+
+  Can you tell which word corresponds to which ciphertext?
+  Why yes/why not?
+\end{task}
+
+\end{document}
