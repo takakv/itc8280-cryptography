@@ -10,9 +10,17 @@ images/*[.png,.jpg]
 # ENV
 venv/
 
+# Secrets
+.env
+
 # Crypto files
 *.pem
 *.der
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
