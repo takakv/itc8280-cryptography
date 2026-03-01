@@ -1,0 +1,43 @@
+\documentclass{practice}
+\usepackage{verbatim}
+
+\title{4}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{task}{Hashcat}
+  To convince you of the need to pick suitable algorithms (Argon2id by default) for protecting passwords, let us crack some passwords.
+
+  Two popular password cracking tools are \href{https://hashcat.net/hashcat/}{\textit{hashcat}} and \href{https://www.openwall.com/john/}{\textit{John the Ripper}}.
+  We will be using hashcat.
+
+  Download the \href{https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Common-Credentials/10k-most-common.txt}{\texttt{10k-most-common.txt}} password wordlist, and then implement a python program which, for each of the following algorithms
+  \begin{itemize}
+    \item SHA-256 (\texttt{-m 1400})
+    \item SHA-256 hash + salt (\texttt{-m 1410})
+    \item scrypt (\texttt{-m 8900})
+    \item PBKDF2-HMAC-SHA256 (\texttt{-m 10900})
+    \item Argon2id (\texttt{-m 34000})
+  \end{itemize}
+  hashes all the passwords and stores the hashes in a file (separate file per algorithm).
+  Hashcat has a \href{https://hashcat.net/wiki/doku.php?id=example_hashes}{\textit{list}} of the formats it expects.
+
+  Most of these are implemented in Python's built-in \href{https://docs.python.org/3/library/hashlib.html}{\texttt{hashlib}} module.
+  The third-party \href{https://passlib.readthedocs.io/en/stable/}{\texttt{passlib}} offers a unified password hashing API, and pyca/cryptography implements Argon2, PBKDF2 and scrypt as part of its \href{https://cryptography.io/en/latest/hazmat/primitives/key-derivation-functions/#variable-cost-algorithms}{KDF submodule}.
+
+  Finally, run hashcat on each of the files.
+  \begin{Verbatim}
+hashcat -a 0 -m <mode identifier> <hashfile> \
+  10k-most-common.txt -w3
+  \end{Verbatim}
+
+  Read also about hashcat's \href{https://hashcat.net/faq/potfile}{\emph{potfile}}.
+\end{task}
+
+\begin{task}{Hashclash}
+  Find your personal MD5 collision with \href{https://github.com/cr-marcstevens/hashclash}{\textit{hashclash}}.
+\end{task}
+
+\end{document}
