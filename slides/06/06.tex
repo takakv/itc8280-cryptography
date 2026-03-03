@@ -1,0 +1,268 @@
+\graphicspath{ {../../images/} }
+\usetikzlibrary{external,arrows.meta}
+\usepackage{caption}
+
+\title{ITC8280 Fundamentals of Cryptography}
+\subtitle{Public-key cryptography: DH \& ECC}
+\date{\today}
+\author{Taaniel Kraavi}
+\institute%
+{%
+  \textit{School of Information Technologies}\\
+  \textit{Tallinn University of Technology}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Modular arithmetic}
+  Modular arithmetic underpins most classical public-key constructions
+  \begin{itemize}[<+(1)->]
+    \item \enquote{Clock arithmetic}: wrap-around behaviour
+    \item Used in many hard problems:
+    \begin{itemize}
+      \item Combined with integer factorisation (e.g. the RSA problem)
+      \item Part of algebraic structures (e.g. DLP-hard groups)
+    \end{itemize}
+    \item Hard problems: intractable for sufficiently large numbers
+    % \begin{itemize}
+    %   \item Intractable for classical computers
+    %   \item Solvable (eventually) by quantum computers (Shor's algorithm)
+    %   \item 48-bit factorisation claimed by Yan et al. (Dec. 2022)
+    % \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Terminology refresher}
+  Two integers are \emph{congruent} modulo $n$ if
+  \[
+    a \equiv b \pmod{n},
+  \]
+  \pause
+  that is, if $n \mid a - b$ (read as: $n$ divides $a-b$).
+  \pause
+  We call $n$ the \alert{modulus}.
+
+  \vspace*{1em}
+
+  \pause
+  You will often see the notation
+  \[
+    a \bmod n = b
+  \]
+  due to its familiarity among programmers:
+  \begin{center}
+    \texttt{b = a \% n}.
+  \end{center}
+\end{frame}
+
+\begin{frame}{Sets}
+  A \emph{set} is an unordered collection of distinct objects.
+  \begin{itemize}[<+(1)->]
+    \item $x\in S$: element $x$ is a member of $S$ (belongs to)
+    \item $x\notin S$: element $x$ is not a member of $S$ (does not belong to)
+    \item $\lvert S\rvert=n$: $S$ has $n$ elements (cardinality, size)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Sets}
+  Important sets in this course:
+  \begin{itemize}[<+(1)->]
+    \item Integers without $0$: $\ZZ^*=\ZZ\setminus\{0\}=\{\dots, -2, -1, 1, 2, 3, \dots\}$
+    \item Integers modulo $n$: $\ZZ_n = \{0, 1, 2, \dots, n-1\}$ {\scriptsize (sometimes denoted $\ZZ/n\ZZ$)}
+    \item Nonzero integers modulo $n$: $\ZZ_n^* = \{1, 2, \dots, n-1\}$
+    \item Invertible integers modulo $n$: $\ZZ_n^\times$ {\scriptsize (sometimes denoted $(\ZZ/n\ZZ)^\times$)}
+    \par
+    \begin{itemize}
+      \item For a prime $p$, $\ZZ_p^\times = \ZZ_p^*$ 
+    \end{itemize}
+    \item $n$-bit bitstrings: $\{0, 1\}^n$
+    \item All bitstrings: $\{0, 1\}^*$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Binary operations}
+  A \emph{binary operation} $\circ$ is a mapping of elements:
+  \[
+    \circ: S \times S \to S
+  \]
+  {\scriptsize Here $\circ$ denotes an arbitrary operation (alternatively $\star, \ast, \diamond$, \dots)}
+
+  \vspace*{1em}
+
+  \pause
+  I.e. it is a rule that for any two set elements gives another set element.
+  \begin{itemize}[<+(1)->]
+    \item We say that the set is \alert{closed} under the operation
+    \item E.g. $\ZZ$ is closed under addition and multiplication
+    \item E.g. $\NN$ is not closed under subtraction
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Commutativity \& associativity}
+  Let $S$ be a set and $\circ$ a binary operation on $S$.
+
+  \pause
+  $\circ$ is \emph{commutative} if for all $a, b\in S$,
+  \[
+      a \circ b = b \circ a\ .
+  \]
+
+  \pause
+  $\circ$ is \emph{associative} if for all $a, b, c\in S$,
+  \[
+    a \circ (b \circ c) = (a \circ b) \circ c\ .
+  \]
+
+  \pause
+  Questions:
+  \begin{itemize}[<+(1)->]
+    \item Addition on $\ZZ$?
+    \item Subtraction on $\ZZ$?
+    \item XOR $(\oplus)$ on $\{0,1\}^n$?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Groups}
+  A \emph{group} is a set $\GG$ equipped with a binary operation $\circ$ on $\GG$ satisfying the following properties:
+  \begin{enumerate}[<+(1)->]
+    \item Associativity: for all $a, b, c\in \GG$,
+    \[
+      a \circ (b \circ c) = (a \circ b) \circ c
+    \]
+    \item Identity element: there exists an element $e\in \GG$ s.t. for all $a\in \GG$,
+    \[
+      a \circ e = a = e \circ a
+    \]
+    \item Inverse element: for each $a\in \GG$, there exists $b\in \GG$ s.t.,
+    \[
+      a \circ b = e = b \circ a
+    \]
+  \end{enumerate}
+  \vspace*{-1em}
+  \pause
+  A group is \emph{abelian} (or commutative) if $a \circ b = b \circ a$ for all $a, b\in\GG$.
+\end{frame}
+
+\begin{frame}{Is it a group?}
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+        \begin{itemize}[<+(1)->]
+        \item Is $(\NN, +)$ a group?
+        \item Is $(\ZZ, +)$ a group?
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{itemize}[<+(1)->]
+        \item Is $(\ZZ^*, +)$ a group?
+        \item Is $(\RR^*, \cdot)$ a group?
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Understanding inverses}
+  Recall that division in $\RR^*$ corresponds to multiplication by the inverse:
+  \[
+    a \cdot b = 1 \iff b = a^{-1} = \frac{1}{a}
+  \]
+
+  \pause
+  An element $a\in\ZZ_n$ has a multiplicative inverse if there exists $b\in\ZZ_n$ such that
+  \[
+    a\cdot b \equiv 1 \pmod{n}.
+  \]
+  \vspace*{-2em}
+  \begin{itemize}[<+(1)->]
+    \item i.e. when $a$ and $n$ are \emph{coprime} (relatively prime)
+    \item We denote the set of invertible elements by $\ZZ_n^\times$
+    \item E.g. $\ZZ_6^\times = \{1, 5\}$ where $1^{-1} = 1$ and $5^{-1} = 5$
+    \item E.g. $\ZZ_5^\times = \{1, 2, 3, 4\}$ where  $1^{-1}=1, 2^{-1}=3, 3^{-1}=2, 4^{-1}=4$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Additive and multiplicative notation}
+  \begin{center}
+  \begin{tabular}{@{}l c c c c@{}}
+    \toprule
+    Convention & Operation & Identity & \enquote{Powers} & Inverse\\
+    \cmidrule{1-5}
+    Additive & $x + y$ & $0$ & $nx$ & $-x$\\
+    \cmidrule{1-5}
+    Multiplicative & $x\cdot y$ or $xy$ & $1$ & $x^n$ & $x^{-1}$\\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \pause
+  E.g. in the multiplicative group $\ZZ_p^*$ with $p$ prime:
+
+  \begin{tabular}{r l}
+    \pause $ab$     & $(a \cdot b) \bmod{p}$\\
+    \pause $a^b$    & $a^b \bmod{p}$\\
+    \pause $a^{-1}$ & $b$ s.t. $ab \equiv 1 \pmod{p}$
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Cyclic groups}
+  Let $\GG$ be a group.
+  $g \in \GG$ \emph{generates} $\GG$ if:
+  \[
+    \GG = \{g^q:q\in\ZZ\} = \{\dots, g^{-1}, 1, g, g^2, g^3, \dots\}
+  \]
+  \pause
+  We then call $g$ a generator and write $\langle g\rangle = \GG$.
+
+  \vspace*{0.5em}
+
+  \pause
+  Example: $\ZZ_7^* = \langle 3\rangle$.
+  \pause
+  \begin{columns}[T]
+    \begin{column}{0.3\textwidth}
+      \begin{itemize}
+        \item $3^0 \bmod{7} = 1$
+        \item $3^1 \bmod{7} = 3$
+        \item $3^2 \bmod{7} = 2$
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \begin{itemize}
+        \item $3^3 \bmod{7} = 6$
+        \item $3^4 \bmod{7} = 4$
+        \item $3^5 \bmod{7} = 5$
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.2\textwidth}
+    \end{column}
+  \end{columns}
+
+  \vspace*{0.5em}
+
+  \pause
+  $3^6 \bmod 7 = 1$ and the cycle repeats.
+
+  \begin{tikzpicture}[>=Stealth,remember picture,overlay]
+    \tikzset{shift={(current page.east)},xshift=-3cm,yshift=-1.05cm}
+
+    \def\radius{3}
+        
+    \node (1) at (90:\radius em) {$1$};
+    \node (3) at (30:\radius em) {$3$};
+    \node (2) at (-30:\radius em) {$2$};
+    \node (6) at (-90:\radius em) {$6$};
+    \node (4) at (-150:\radius em) {$4$};
+    \node (5) at (150:\radius em) {$5$};
+
+    \draw[->] (1) -- (3);
+    \draw[->] (3) -- (2);
+    \draw[->] (2) -- (6);
+    \draw[->] (6) -- (4);
+    \draw[->] (4) -- (5);
+    \draw[->] (5) -- (1);
+  \end{tikzpicture}
+\end{frame}
+
+\end{document}
