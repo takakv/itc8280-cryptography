@@ -20,6 +20,8 @@ def main():
     message = b"Length extension"
     tag = authenticate(message)
 
+    # No knowledge of the key starting from now.
+
     hasher = hlextend.new('sha256')
     # The secret length of 16 bytes is known to us.
     extended_message = hasher.extend(b"Forgery!", message, 16, tag.hex())
@@ -28,6 +30,8 @@ def main():
 
     print("Extended message:", extended_message)
     print("Forged tag:", hasher.hexdigest())
+
+    # External verifier with knowledge of the key.
 
     print("Forged tag verifies:", verify(extended_message, forged_tag))
 
