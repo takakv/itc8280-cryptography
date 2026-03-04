@@ -1,9 +1,11 @@
 \graphicspath{ {../../images/} }
 \usetikzlibrary{external,arrows.meta}
 \usepackage{caption}
+\usepackage{pgfplots}
+\usepackage{changepage}
 
 \title{ITC8280 Fundamentals of Cryptography}
-\subtitle{Public-key cryptography: DH \& ECC}
+\subtitle{Public-key cryptography: DH, ECC \& KEMs}
 \date{\today}
 \author{Taaniel Kraavi}
 \institute%
@@ -263,6 +265,509 @@
     \draw[->] (4) -- (5);
     \draw[->] (5) -- (1);
   \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Safe primes}
+  A \emph{safe} prime is a prime $p$ such that $p = 2q + 1$ with $q$ prime.
+  \begin{itemize}[<+(1)->]
+    \item Highly important in cryptography
+    \item $\ZZ_p^*$ has $p-1$ elements
+    \item $\ZZ_p^*$ has a unique subgroup of $q$ elements (subgroup of prime order)
+    \item $\ZZ_p^*$ has no \enquote{useful} small subgroups
+    \item Security for the discrete logarithm problem (DLP)
+  \end{itemize}
+
+  \vspace*{1em}
+  \pause
+  The \emph{order} of a group, denoted $\lvert\GG\rvert$, is the number of elements in the group.
+\end{frame}
+
+\begin{frame}{Discrete logarithm problem (DLP)}
+  Setting:
+  \begin{itemize}[<+(1)->]
+    \item Let $p$ be a (large) safe prime such that $p = 2q + 1$ with $q$ prime.
+    \item Fix a generator $g$ and define $\GG = \langle g \rangle = \{g^i :0 \le i < q\}$.
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  The following is then considered \emph{intractable}:
+  \[
+    \text{Find $x$ s.t. } g^x \equiv y \pmod{p}\ ,
+  \]
+  where $g, y, p$ are known.
+
+  \pause
+  No longer intractable when a crypto-relevant quantum computer (CRQC) appears!
+\end{frame}
+
+\begin{frame}{DLP security}
+  The DLP exists in every finite cyclic group:
+  \pause
+  \begin{itemize}
+    \item Not guaranteed to be hard in a \enquote{generic} group.
+    \item Always research whether the DLP is intractable in a chosen group!
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  Two common group \enquote{types}:
+  \begin{itemize}[<+(1)->]
+    \item Group of quadratic residues modulo a safe prime
+    \begin{itemize}
+      \item \enquote{Standard} primes defined in \href{https://datatracker.ietf.org/doc/html/rfc3526}{RFC 3526} ($\ge3072$ bits recommended)
+    \end{itemize}
+    \item \enquote{Cryptographic} elliptic curve groups (slide \ref{slide:curve-ex})
+  \end{itemize}
+
+  \pause
+  {\scriptsize\url{https://en.wikipedia.org/wiki/Discrete_logarithm_records}}
+\end{frame}
+
+\begin{frame}{Weak DLP group}
+  Consider the group $(\ZZ_p^*, +)$.
+  \begin{itemize}[<+(1)->]
+    \item Not multiplicative, but great for intuition.
+    \item DLP (cursed definition): $\log(y) = x \iff xg \equiv y \pmod{p}$.
+    \item It follows that $x \equiv yg^{-1} \pmod{p}$.
+    \item This is not hard to compute.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Public-key cryptography}
+  Public-key cryptography consists of cryptographic systems that use pairs of related keys.
+  \begin{itemize}[<+(1)->]
+    \item Also called asymmetric cryptography
+    \item Keypair: public and private/secret key
+    \item Keys are linked using mathematical trapdoors (one-way functions)
+    \item Public key can be known and used by anyone
+    \item Private key must be kept secret
+    \item $\implies$ it must be infeasible to derive the private key from the public key
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Diffie-Hellman key exchange (DHKE)}
+  Diffie-Hellman key exchange (DHKE) was the first known key-agreement protocol:
+  \begin{itemize}[<+(1)->]
+    \item Finite field DH is the \enquote{simplest}: \href{https://datatracker.ietf.org/doc/html/rfc7919}{RFC 7919} (DLP security)
+    \item \enquote{Standard} groups in \href{https://datatracker.ietf.org/doc/html/rfc3526}{RFC 3526}
+    \item Different variants exist, e.g. ECDH on elliptic curves
+    \item Basis for more complex schemes
+    \item \href{https://csrc.nist.gov/pubs/sp/800/56/a/r3/final}{NIST SP 800-56A Rev. 3}
+  \end{itemize}
+
+  \pause
+  Easy to shoot yourself in the foot: a jumbled mess of choices. (my opinion)
+\end{frame}
+
+\begin{frame}{DH colours example}
+  \begin{center}
+    \includegraphics[height=200px]{dhex}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Finite field DH}
+  \begin{center}
+    \begin{tikzpicture}
+      \node (bob)   at (0,0)     {\includegraphics[height=80px]{alice}};
+      \node (alice) at (8, 0)    {\includegraphics[height=80px]{bob}};
+      \node (eve)   at (4, -2.1) {\includegraphics[height=80px]{eve}};
+
+      \node (btop) at (bob.east) [yshift=10px] {};
+      \node (atop) at (alice.west) [yshift=10px] {};
+
+      \draw[->,thick] (btop) -- (atop);
+
+      \node (bbot) at (bob.east) [yshift=-10px] {};
+      \node (abot) at (alice.west) [yshift=-10px] {};
+  
+      \draw[<-,thick] (bbot) -- (abot);
+
+      \path let \p1 = (btop) in node (gxt) at (4,\y1) [yshift=7px] {$g^x$};
+      \path let \p1 = (bbot) in node (gyt) at (4,\y1) [yshift=7px] {$g^y$};
+
+      \path let \p1 = (btop) in node (circ1) at (2,\y1) {};
+      \path let \p1 = (bbot) in node (circ2) at (6,\y1) {};
+      
+      \draw[->,thick] (circ1.center) |- (eve.west);
+      \draw[->,thick] (circ2.center) |- (eve.east);
+
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 4px, inner sep=0pt] at (circ1) {};
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 4px, inner sep=0pt] at (circ2) {};
+
+      \node (gx) at (eve.west) [xshift=-10px, yshift=10px] {$g^x$};
+      \node (gy) at (eve.east) [xshift=10px, yshift=10px] {$g^y$};
+
+      \node[anchor=east] (m) at (-0.5, 0.25) {$x\getsu\ZZ_q$};
+      \node[anchor=east] (enc) at (-0.5, -0.25) {$g^{xy}\gets\bigl(g^y\bigr)^x$};
+      \node[anchor=west] (m) at (8.8, 0.25) {$y\getsu\ZZ_q$};
+      \node[anchor=west] (enc) at (8.8, -0.25) {$g^{xy}\gets\bigl(g^x\bigr)^y$};
+
+      \node (enc) at (eve.south) [yshift=-10px] {$g^{xy}$?};
+    \end{tikzpicture}
+  \end{center}
+
+  \pause
+  Why can the eavesdropper not recover $x$ or $y$ and compute $g^{xy}$?
+\end{frame}
+
+\begin{frame}{DH shortcomings}
+  \begin{itemize}[<+(1)->]
+    \item By default, DHKE is anonymous (no authentication)
+    \item Secure against sniffing/eavesdropping, but not against MITM
+    \item Easy to pick a weak group (cool \href{https://weakdh.org/imperfect-forward-secrecy-ccs15.pdf}{\textit{article}})
+    \item Susceptible\textsuperscript{*} to precomputation attacks: predefined groups/primes
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Man-in-the-Middle attack}
+  \begin{figure}
+  \begin{adjustwidth}{-1em}{-1em}
+    \centering
+    \begin{tikzpicture}
+      \node (bob)   at (0,0)     {\includegraphics[height=80px]{alice}};
+      \node (alice) at (8, 0)    {\includegraphics[height=80px]{bob}};
+      \node (eve)   at (4, 0) {\includegraphics[height=80px]{eve}};
+
+      \node (btop) at (bob.east) [yshift=5px] {};
+      \node (atop) at (alice.west) [yshift=5px] {};
+
+      \node (bbot) at (bob.east) [yshift=-5px] {};
+      \node (abot) at (alice.west) [yshift=-5px] {};
+
+      \node (mltop) at (eve.west) [yshift=5px] {};
+      \node (mrtop) at (eve.east) [yshift=5px] {};
+      \node (mlbot) at (eve.west) [yshift=-5px] {};
+      \node (mrbot) at (eve.east) [yshift=-5px] {};
+
+      \draw[->,thick] (btop) -- node[midway, above] {$g^x$} (mltop);
+      \draw[<-,thick] (bbot) -- node[midway, below] {$g^m$} (mlbot);
+
+      \draw[->,thick] (atop) -- node[midway, above] {$g^y$} (mrtop);
+      \draw[<-,thick] (abot) -- node[midway, below] {$g^m$} (mrbot);
+
+      \node[anchor=east] (m) at (-0.5, 0.25) {$x\getsu\ZZ_q$};
+      \node[anchor=east] (enc) at (-0.5, -0.25) {$g^{xm}\gets\bigl(g^m\bigr)^x$};
+      \node[anchor=west] (m) at (8.8, 0.25) {$y\getsu\ZZ_q$};
+      \node[anchor=west] (enc) at (8.8, -0.25) {$g^{ym}\gets\bigl(g^m\bigr)^y$};
+
+      \node (gm) at (eve.north) [yshift=4px] {$m\getsu\ZZ_q$};
+      \node (gmx) at (eve.south) [yshift=-4px] {$g^{xm} \gets \bigl(g^x\bigr)^m$};
+      \node (gmy) at (gmx.south) [yshift=-4px] {$g^{ym} \gets \bigl(g^y\bigr)^m$};
+    \end{tikzpicture}
+  \end{adjustwidth}
+  \end{figure}
+
+  \pause
+  Mallory establishes a shared secret with both Alice and Bob.
+\end{frame}
+
+\begin{frame}{Perfect forward secrecy (PFS)}
+  \emph{Ephemeral} Diffie-Hellman (DHE, ECDHE):
+  \begin{itemize}[<+(1)->]
+    \item Server's long-term key used only for authentication / channel setup
+    \item One-time \emph{session} keys generated for each session/transaction
+    \item Prevents decryption of past sessions if  long-term key is compromised
+    \item Prevents decryption of other sessions if session key is compromised
+  \end{itemize}
+
+  \pause
+  No absolute protection against future cryptanalysis.
+  \begin{itemize}
+    \item PFS offers protection only as long as the algorithm remains unbroken.
+  \end{itemize}
+
+  \pause
+  See also: \emph{\href{https://en.wikipedia.org/wiki/Double_Ratchet_Algorithm}{double ratchet}} for post-compromise confidentiality (e.g. Signal)
+\end{frame}
+
+\begin{frame}{Elliptic curves}
+  $y^2 = x^3 + ax + b$
+  \vspace*{-2em}
+  \begin{center}
+    \begin{tikzpicture}
+    \begin{axis}[
+            xmin=-5,
+            xmax=5,
+            ymin=-5,
+            ymax=5,
+            ticks=none,
+            scale only axis,
+            axis lines=middle,
+            domain=-2.279018:3,      
+            samples=201,
+            smooth,   
+            clip=false,
+            % use same unit vectors on the axis
+            axis equal image=true,
+            axis line style=thick
+        ]
+    
+    \addplot[blue,thick] {sqrt(x^3-3*x+5)} node[right] {};
+    \addplot[blue,thick] {-sqrt(x^3-3*x+5)};
+    \end{axis}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{ECDL}
+  Elliptic curve discrete logarithm problem:
+  \begin{center}
+    find $x$ given $Q = xP = \underbrace{P + P + \dots + P}_{x \text{ times}}$
+  \end{center}
+\end{frame}
+
+\begin{frame}{Why elliptic curves}
+  Equivalent security to \enquote{mod p groups} with better performance
+  \begin{itemize}[<+(1)->]
+    \item Large key-sizes for DLP-based trapdoors
+    \item Best known algorithms against EC trapdoors are less efficient
+    \item More efficient computations and optimisations
+    \item The Internet loves them (TLS)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Why not elliptic curves}
+  Complex structure
+  \begin{itemize}[<+(1)->]
+    \item Higher bar of expertise
+    \item Supporting PK-encryption is sus (data encoding \enquote{problem})
+    \item Questionable parameter generation: are there backdoors?
+    \item Different side-channel concerns
+    \item Patents, patents, and patents
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{DualEC\_DRBG}
+  Did the NSA backdoor the DualEC\_DRBG ECC-based CSPRNG?
+  \begin{itemize}[<+(1)->]
+    \item Standardised by NIST
+    \item Pushed and promoted by the NSA
+    \item Thankfully retired in 2014
+  \end{itemize}
+
+  \pause
+  Some links:
+  \begin{itemize}
+    \item {\scriptsize\url{https://blog.cryptographyengineering.com/2015/01/14/hopefully-last-post-ill-ever-write-on/}}
+    \item {\scriptsize\url{https://www.schneier.com/blog/archives/2007/11/the_strange_sto.html}}
+    \item {\scriptsize\url{https://youtu.be/nybVFJVXbww?si=_fn6J-TD7HnvfPtA}}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Well-known curves}
+  \label{slide:curve-ex}
+  Some popular curves include:
+  \begin{itemize}[<+(1)->]
+    \item \textbf{Curve25519} (D. J. Bernstein): good default choice
+    \begin{itemize}
+      \item Ed25519 EdDSA signatures
+      \item X25519 DH over Curve25519
+    \end{itemize}
+    \item P-256, \textbf{P-384}, P-521 (NIST): FIPS-approved
+    \begin{itemize}
+      \item secp256r1, secp384r1, secp521r1 
+    \end{itemize}
+    \item Curve448: if Curve25519 is not enough
+    \item \href{https://hackmd.io/@benjaminion/bls12-381}{BLS12-381}: for fancy crypto (e.g. ZK-SNARKs)
+    \item Brainpool Curves (\href{https://datatracker.ietf.org/doc/html/rfc5639}{RFC 5639}): German compliance or NIST paranoia
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Resources}
+  Some resources:
+  \begin{itemize}[<+(1)->]
+    \item NIST-approved curves for key establishment: \href{https://csrc.nist.gov/pubs/sp/800/186/final}{\textit{NIST SP 800-186}}
+    \item NIST-approved curves for digital signatures: \href{https://csrc.nist.gov/pubs/fips/186-5/final}{\textit{FIPS 186-5 (DSS)}}
+    \item Bernstein's \href{https://safecurves.cr.yp.to}{\emph{SafeCurves}} guide (arguably biased and a bit outdated)
+    \item \href{https://www.keylength.com/en/}{\textit{keylength.com}}
+    \item \href{https://cryptobook.nakov.com/asymmetric-key-ciphers/elliptic-curve-cryptography-ecc}{\textit{Nakov's ECC for developers}} (a high-level explanation for devs)
+    \item Jan Jancar's \href{https://neuromancer.sk/std/}{\textit{Standard curve database}}
+  \end{itemize}
+
+  \pause
+  A nice \href{https://crypto.stackexchange.com/questions/93519/why-are-nist-curves-still-used}{\textit{post}} on Crypto Stack Exchange about NIST curves.
+\end{frame}
+
+\begin{frame}{Security level}
+  PK cryptography typically requires larger keys to achieve the same security level as symmetric cryptosystems.
+
+  \pause
+  Some shaky explanations:
+  \begin{itemize}[<+(1)->]
+    \item Mathematical problems with various algorithms to attempt to solve them
+    \item Relationship between public and secret key
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Security level (classical adversaries!)}
+  Estimates defined in \href{https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final}{NIST SP 800-57 REV. 5}
+
+  \pause
+  \begin{center}
+  \begin{tabular}{@{}ccccc@{}}
+    Security Strength & Symmetric & FFC & ECC & RSA\\
+    \toprule
+    128 & AES-128 & $L = 3072$  & $f = 256$ & $k = 3072$\\
+    192 & AES-192 & $L = 7680$  & $f = 384$ & $k = 7680$\\
+    256 & AES-256 & $L = 15360$ & $f = 512$ & $k = 15360$
+  \end{tabular}
+  \end{center}
+
+  \pause
+  Other recommendations:
+  \begin{itemize}
+    \item BSI: \href{https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/Technische-Richtlinien/TR-nach-Thema-sortiert/tr02102/tr02102_node.html}{TR-02102-1}
+    \item ANSSI: \href{https://cyber.gouv.fr/le-referentiel-general-de-securite-version-20-les-documents}{RGS v2.0 annex B1}
+    \item NCSC (NL): \href{https://english.ncsc.nl/publications/publications/2025/06/26/security-guidelines-for-transport-layer-security-2025-05}{IT Security Guidelines for
+    Transport Layer Security (TLS)\textsuperscript{*}}
+    \item {\scriptsize\url{https://www.keylength.com/en/compare/}}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Key encapsulation}
+  A \emph{key encapsulation mechanism} is a triple of PPT algorithms:
+  \begin{itemize}[<+(1)->]
+    \item $\GEN$ is a randomised \emph{key generation algorithm}: $(\PK,\SK)\gets\GEN()$
+    \item $\Encaps$ is a randomised \emph{encapsulation algorithm}: $(k, c)\gets\Encaps(\PK)$
+    \item $\Decaps$ is a \emph{decapsulation algorithm}: $k\gets\Decaps(\SK, c)$.
+  \end{itemize}
+
+  \pause
+  Terminology:
+  \begin{itemize}[<+(1)->]
+    \item $\SK$ is the secret encapsulation key, $\PK$ is its public counterpart
+    \item $k$ is the shared secret (symmetric)
+    \item $c$ is the encapsulated secret, also called the \emph{encapsulation}
+  \end{itemize}
+
+  \pause
+  The scheme is \emph{functional} if $\Decaps(\SK, c) = k$ for $(k,c) \gets \Encaps(\PK)$.
+\end{frame}
+
+\begin{frame}{KEM scheme}
+  \begin{figure}
+  \begin{adjustwidth}{-1em}{-1em}
+    \centering
+    \begin{tikzpicture}
+      \node (alice) at (0,0)      {\includegraphics[height=80px]{alice}};
+      \node (bob)   at (6, 0)     {\includegraphics[height=80px]{bob}};
+      \node (eve)   at (3, -2.1)  {\includegraphics[height=80px]{eve}};
+  
+      \draw[->,thick] (alice.east) -- (bob.west);
+      
+      \node[anchor=east] (gen) at (9.25, 2) {$(\PK,\SK)\gets\GEN()$};
+      \draw[<-,dashed,thick] (alice.north) |- (gen.west);
+
+      \node (el) at (eve.north) [xshift=-6px] {};
+      \node (er) at (eve.north) [xshift=6px] {};
+
+      \path let \p1 = (el) in node (circ1) at (\x1,2) {};
+      \path let \p1 = (er) in node (circ2) at (\x1,0) {};
+
+      \node[anchor=west] (enc) at (-4.25, 0) {$(k, c)\gets\Encaps(\PK)$};
+      \node[anchor=east] (dec)  at (10, 0) {$k\gets\Decaps(\SK, c)$};
+      
+      \node (c) at (circ2.north) [yshift=5px] {$c$};
+
+      \draw[->,dashed,thick] (circ1) -- (el);
+      \draw[->,thick] (circ2.center) -- (er);
+
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 2px, inner sep=0pt] at (circ1) {};
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 2px, inner sep=0pt] at (circ2) {};
+  
+      \node (ska) at (circ1.north) [yshift=5px] {$\PK$};
+    \end{tikzpicture}
+  \end{adjustwidth}
+  \end{figure}
+
+  \pause
+  The KEM must be IND-CCA2 secure.
+\end{frame}
+
+\begin{frame}{Hybrid encryption}
+  Public-key cryptography is slow, but \enquote{solves} the key exchange problem\textsuperscript{*}.
+
+  \pause
+  Hybrid cryptosystem:
+  \begin{itemize}
+    \item Public-key -- \emph{key encapsulation mechanism} (KEM) or key agreement
+    \item Symmetric -- \emph{data encapsulation scheme}
+  \end{itemize}
+
+  \vspace*{0.5em}
+
+  \pause
+  Typical steps:
+  \begin{enumerate}[<+(1)->]
+    \item Share/establish a symmetric secret using public key cryptography
+    \item Derive symmetric keys from the secret with a KDF
+    \item Use the symmetric keys for confidentiality + authenticity
+  \end{enumerate}
+
+  \vspace*{0.5em}
+
+  \pause
+  {\scriptsize \textsuperscript{*}Need for identity + authenticity on top of confidentiality.}
+\end{frame}
+
+\begin{frame}{Integrated Encryption Scheme (IES)}
+  Informally, an \emph{integrated encryption scheme} describes how to build a hybrid encryption scheme from standard primitives.
+
+  \vspace*{1em}
+
+  \pause
+  Required information:
+  \begin{itemize}[<+(1)->]
+    \item Public key mechanism
+    \item Key derivation function (KDF)
+    \item Symmetric encryption scheme
+    \item Message authentication code system (MAC)
+    \item Optional shared information
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{ECIES}
+  The \emph{Elliptic Curve Integrated Encryption Scheme} (ECIES) is an IES instantiated with elliptic-curve Diffie-Hellman (ECDH).
+  \begin{itemize}[<+(1)->]
+    \item None of the relevant standards are freely accessible
+    \item The construction pattern is useful regardless
+    \item For elliptic curves, we use additive group notation
+    \item Convention: group elements in uppercase, scalars in lowercase
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{ECIES approach}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      Encrypt $m$ knowing public key $K_B$
+      \begin{enumerate}[<+(1)->]
+        \item Compute $R\gets rG$ with $r\getsu\ZZ_n^*$
+        \item Derive $S\gets rK_B$
+        \item Derive $k_E, k_M \gets \KDF(S)$
+        \item Encrypt $c \gets \ENC_k(m)$
+        \item MAC $t \gets \MAC_{k_M}(c)$
+        \item Output $R||c||t$
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \pause
+      Decrypt $R||c||t$ knowing private key $k_B$
+      \begin{enumerate}[<+(1)->]
+        \item Derive $S\gets k_BR$
+        \item Derive $k_E, k_M \gets \KDF(S)$
+        \item Abort if $t \neq \MAC_{k_M}(c)$
+        \item Recover $m \gets \DEC_{k_E}(c)$
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+
+  \vspace*{1em}
+
+  \pause
+  In practice, there are additional checks on the receiver side.
 \end{frame}
 
 \end{document}
