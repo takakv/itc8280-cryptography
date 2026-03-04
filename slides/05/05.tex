@@ -431,15 +431,6 @@
 \end{frame}
 
 \begin{frame}{What to use}
-  First, check what the documentation/standard recommends for your use case.
-  \begin{itemize}
-    \item AEADs typically specify encryption + MAC pair
-    \item E.g. Poly1305 for ChaCha20
-  \end{itemize}
-
-  \vspace*{1em}
-
-  \pause
   In a standalone setting (no confidentiality), use
   \begin{itemize}[<+(1)->]
     \item HMAC: hash-based message authentication code
@@ -460,9 +451,10 @@
   \begin{itemize}[<+(1)->]
     \item AES-GCM {\scriptsize(or AES-GCM-SIV for nonce-misuse resistance)}
     \item (X)ChaCha20-Poly1305
+    \item {\scriptsize Other standardised/studied mechanisms, if needed (e.g. Deoxys-II, Ascon). See \href{https://competitions.cr.yp.to/caesar-submissions.html}{\textit{CAESAR}}.}
   \end{itemize}
 
-  \vspace*{1em}
+  \vspace*{0.5em}
 
   \pause
   If composing encryption and MAC yourself:
@@ -473,7 +465,7 @@
     \item AES-CTR + HMAC-SHA2XX in EtM mode
   \end{itemize}
 
-  \vspace*{1em}
+  \vspace*{0.5em}
 
   \pause
   Never reuse nonces under the same key!
