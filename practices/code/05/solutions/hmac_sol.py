@@ -1,22 +1,26 @@
 import hmac
 import secrets
 
+KEY = secrets.token_bytes(16)
 
-def verify_tag(message: bytes, tag: bytes, key: bytes) -> bool:
-    verif = hmac.digest(key, message, "sha256")
+
+def verify(message: bytes, tag: bytes) -> bool:
+    verif = hmac.digest(KEY, message, "sha256")
     return hmac.compare_digest(verif, tag)
+
+
+def authenticate(message: bytes) -> bytes:
+    return hmac.digest(KEY, message, "sha256")
 
 
 def main():
     message = b"This is a message"
     fake_message = b"This is not a message"
 
-    key = secrets.token_bytes(32)
+    tag = authenticate(message)
 
-    tag = hmac.digest(key, message, "sha256")
-
-    print("Verify correct HMAC:", verify_tag(message, tag, key))
-    print("Verify invalid HMAC:", verify_tag(fake_message, tag, key))
+    print("Verify correct HMAC:", verify(message, tag))
+    print("Verify invalid HMAC:", verify(fake_message, tag))
 
 
 if __name__ == "__main__":
