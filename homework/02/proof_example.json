@@ -12,5 +12,9 @@
       "hash": "d172569f505d87c63e6ed0f3cda0d57cce7c18af4e777daea7de440054104e2e"
     }
   ],
-  "root": "b5ed5514ffa65495635385dd242c0fe8c3f7d148f2de3207d3319e005053dd58"
+  "head": {
+    "hash": "b5ed5514ffa65495635385dd242c0fe8c3f7d148f2de3207d3319e005053dd58",
+    "signature": "kyeumijdwcAw8124dct5XiXGqkjhygxAzNeok0PcC/pPB+xI/5LlsRUSIJnrtL0he8AqcukgieloFZcv+CMPCg==",
+    "timestamp": "2026-03-08T21:01:08Z"
+  }
 }

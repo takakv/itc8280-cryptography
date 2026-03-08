@@ -1,4 +1,7 @@
+import base64
 import json
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
 
 import requests
@@ -66,25 +69,6 @@ def verify_merkle_proof(
     pass
 
 
-def save_proof(
-        data: str,
-        leaf_id: int,
-        leaf_hash: bytes,
-        proof: list[tuple[Literal["left", "right"], bytes]],
-        root_hash: bytes,
-        path: str = "proof.json",
-) -> None:
-    proof_json = {
-        "index": leaf_id,
-        "data": data,
-        "leaf_hash": leaf_hash.hex(),
-        "proof": [{"position": pos, "hash": h.hex()} for pos, h in proof],
-        "root": root_hash.hex(),
-    }
-    with open(path, "w") as f:
-        json.dump(proof_json, f, indent=2)
-
-
 def main():
     data = ""
 
@@ -92,43 +76,95 @@ def main():
     leaf_index = leaf_id - 1  # List indices start at 0.
 
     domain = "https://ahel.kastike.ee"
-    leaves_url = f"{domain}/entries"
-    root_url = f"{domain}/tree/head"
 
-    entries = requests.get(leaves_url).json()
-    hashes = [bytes.fromhex(e.get("leaf_hash")) for e in entries]
+    hashes = fetch_entries(domain)
     leaf = hashes[leaf_index]
 
     # The recomputed leaf should match the leaf in the tree
-    assert leaf == get_leaf_hash(data.encode())
+    assert leaf == get_leaf_hash(data.encode()), (
+        f"Leaf {leaf_id} hash mismatch: expected {get_leaf_hash(data.encode()).hex()}, got {leaf.hex()}"
+    )
 
-    print("Leaf id:", leaf_id)
+    print("Leaf id  :", leaf_id)
     print("Leaf hash:", leaf.hex())
     print()
 
-    current_root_resp = requests.get(root_url).json()
-    current_root = bytes.fromhex(current_root_resp["root_hash"])
-    leaf_count: int = current_root_resp["num_leaves"]
+    head, leaf_count = fetch_tree_head(domain)
 
-    print("Current root:", current_root.hex(), f"(perfect: {current_root_resp['is_perfect']})")
-    print("Leaf count:", leaf_count)
-    print("Level count:", ilog2(leaf_count))
+    print(f"Current root: {head.hash.hex()}")
+    print(f"Leaf count  : {leaf_count}")
+    print(f"Level count : {ilog2(leaf_count)}")
     print()
 
     root, tree = build_merkle_tree(hashes)
+
     # The rebuilt tree root should match the returned root
-    assert current_root == root
+    assert head.hash == root, (
+        f"Root mismatch: server returned {head.hash.hex()}, rebuilt {root.hex()}"
+    )
 
     # The lowest level of the tree should contain all leaves
-    assert len(tree[0]) == leaf_count
+    assert len(tree[0]) == leaf_count, (
+        f"Leaf count mismatch: expected {leaf_count}, got {len(tree[0])}"
+    )
 
     proof = get_merkle_proof(tree, leaf_index)
-    verify_result = verify_merkle_proof(leaf, proof, root)
 
-    print("Merkle proof verified:", verify_result)
+    verified = verify_merkle_proof(leaf, proof, root)
+    print("Merkle proof verified:", verified)
 
-    save_proof(data, leaf_id, leaf, proof, root)
+    save_proof(data, leaf_id, leaf, proof, head)
 
 
 if __name__ == "__main__":
     main()
+
+
+@dataclass
+class TreeHead:
+    hash: bytes
+    signature: bytes
+    timestamp: str
+
+    def to_dict(self) -> dict:
+        return {
+            "hash": self.hash.hex(),
+            "signature": base64.b64encode(self.signature).decode(),
+            "timestamp": self.timestamp,
+        }
+
+
+def save_proof(
+        data: str,
+        leaf_id: int,
+        leaf_hash: bytes,
+        proof: list[tuple[Literal["left", "right"], bytes]],
+        head: TreeHead,
+        path: Path = Path("proof.json"),
+) -> None:
+    proof_doc = {
+        "index": leaf_id,
+        "data": data,
+        "leaf_hash": leaf_hash.hex(),
+        "proof": [{"position": pos, "hash": h.hex()} for pos, h in proof],
+        "head": head.to_dict(),
+    }
+    path.write_text(json.dumps(proof_doc, indent=2), encoding="utf-8")
+
+
+def fetch_entries(domain: str) -> list[bytes]:
+    entries = requests.get(f"{domain}/entries")
+    entries.raise_for_status()
+    return [bytes.fromhex(e["leaf_hash"]) for e in entries.json()]
+
+
+def fetch_tree_head(domain: str) -> tuple[TreeHead, int]:
+    resp = requests.get(f"{domain}/tree/head")
+    resp.raise_for_status()
+    data = resp.json()
+    head = TreeHead(
+        hash=bytes.fromhex(data["root_hash"]),
+        signature=bytes.fromhex(data["signature"]),
+        timestamp=data["created_at"],
+    )
+    return head, data["num_leaves"]
