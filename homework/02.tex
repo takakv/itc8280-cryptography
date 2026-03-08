@@ -37,7 +37,7 @@ breaklines=true
     Specific questions are also welcome.
     \item Do not share the feedback you receive, as this may give others an unfair advantage.
   \end{itemize}
-  \item Grace clause submission deadline: 07.03.2026 23:59 EET.
+  \item Grace clause submission deadline: 22.03.2026 23:59 EET.
   \begin{itemize}
     \item The grace clause applies only if you submit the full work (all tasks) by the soft deadline and the GitLab pipeline succeeds.
     \item You have one week from receiving the feedback to fix and resubmit your improved work.
@@ -374,7 +374,29 @@ SHA512/256(0x01||left_node||right_node)
 \end{task}
 
 \begin{task}{Extending this assignment}
-  TBD SHA256 length extension for authentication.
+  Task template file: \texttt{forger\_template.py}
+
+  Consider an authentication scheme over a plaintext channel where, to log into a system, a user:
+  \begin{enumerate}
+    \item Generates a 128-bit nonce uniformly at random
+    \item MACs the nonce with a key known to users and the server
+    \item Submits the (nonce, tag) pair to the server
+  \end{enumerate}
+
+  The server first checks whether the nonce has previously been used.
+  If yes, the server rejects the login, otherwise it stores the nonce in its database.
+  If the nonce was fresh, the server verifies the MAC on the nonce.
+  If validation succeeds, the user is granted access.
+
+  Implement the function
+  \begin{Verbatim}
+adversary(message: bytes, tag: bytes) -> tuple[bytes, bytes]
+  \end{Verbatim}
+
+  The function must implement the EUF-KMA adversary for the naive MAC $t \gets H(k||m)$ with 128-bit keys.
+  The adversary does not have access to the MAC key or to a MAC oracle, which is why we consider KMA and not CMA.
+
+  The function must return a valid (and fresh) (message, tag) pair.
 \end{task}
 
 \end{document}
