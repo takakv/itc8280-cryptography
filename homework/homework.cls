@@ -18,6 +18,8 @@
 \RequirePackage{amssymb}
 \RequirePackage{amsthm}
 
+\RequirePackage{crysymb}
+
 \RequirePackage[hidelinks]{hyperref}
 
 \RequirePackage{tcolorbox}
@@ -32,6 +34,9 @@
 \setmonofont{Courier New}
 
 \RequirePackage{bookmark}
+
+\RequirePackage{booktabs}
+\renewcommand{\arraystretch}{1.2}
 
 \RequirePackage{datetime2}
 \DTMsetdatestyle{ddmmyy}

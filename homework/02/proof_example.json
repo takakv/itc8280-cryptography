@@ -1,0 +1,16 @@
+{
+  "index": 3,
+  "data": "Third entry",
+  "leaf_hash": "13b0a283ec9b911cbcede8301470ab67dd3438cd4096597d7769e23d261a792f",
+  "proof": [
+    {
+      "position": "right",
+      "hash": "f7e7de9f8023c366641670618c113693206ed9a01e5c5aeafe5c097ef2a3d290"
+    },
+    {
+      "position": "left",
+      "hash": "d172569f505d87c63e6ed0f3cda0d57cce7c18af4e777daea7de440054104e2e"
+    }
+  ],
+  "root": "b5ed5514ffa65495635385dd242c0fe8c3f7d148f2de3207d3319e005053dd58"
+}
