@@ -40,7 +40,7 @@ def get_merkle_proof(
     """Return an inclusion proof as a list of (position, hash) pairs.
 
     E.g. for a tree `[[l1, l2, l3, l4], [x1, x2], [root]]` and leaf index 2 (l3),
-    the inclusion proof is `[["right", l4], ["left", x1]]`.
+    the inclusion proof is `[("right", l4), ("left", x1)]`.
 
     :param tree: the full Merkle tree
     :param leaf_index: the leaf index (0-indexed)
@@ -48,7 +48,7 @@ def get_merkle_proof(
     """
     # Example:
     # proof = []
-    # proof.append(["right", hashes[i]])
+    # proof.append(("right", hashes[i]))
     pass
 
 
