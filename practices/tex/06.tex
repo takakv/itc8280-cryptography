@@ -1,0 +1,104 @@
+\documentclass{practice}
+
+\title{6}
+\date{\today}
+
+%\usepackage{etoolbox}
+%\makeatletter
+%\preto{\@verbatim}{\topsep=0pt \partopsep=-2\parsep }
+%\makeatother
+
+\usepackage{crysymb}
+
+\usepackage{fancyvrb}
+\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\partopsep}{0pt}}
+
+\usepackage{listings}
+
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\begin{document}
+\maketitle
+
+\begin{task}{OpenSSL}
+  \textit{Preface.}
+  For working with public-key cryptography keypairs, OpenSSL provides the following tools:
+  \begin{itemize}
+    \item \href{https://docs.openssl.org/master/man1/openssl-genpkey/}{\texttt{genpkey}}: utility for generating a private key (RSA, EC) or parameters (DH, DSA, EC)
+    \begin{itemize}
+      \item Alternatively: \href{https://docs.openssl.org/master/man1/openssl-genrsa/}{\texttt{genrsa}}, \href{https://docs.openssl.org/master/man1/openssl-dhparam/}{\texttt{dhparam}}, \href{https://docs.openssl.org/master/man1/openssl-ecparam/}{\texttt{ecparam}}
+    \end{itemize}
+    \item \href{https://docs.openssl.org/master/man1/openssl-pkey/}{\texttt{pkey}}: utility for processing keys, e.g. change their format (PEM, DER) or passphrase
+    \begin{itemize}
+      \item Alternatively: \href{https://docs.openssl.org/master/man1/openssl-rsa/}{\texttt{rsa}}, \href{https://docs.openssl.org/master/man1/openssl-ec}{\texttt{ec}}
+    \end{itemize}
+    \item \href{https://docs.openssl.org/master/man1/openssl-pkeyutl/}{\texttt{pkeyutl}}: utility for actual operations with keys (e.g. encryption or signing)
+    \begin{itemize}
+      \item \href{https://docs.openssl.org/master/man1/openssl-rsautl/}{\texttt{rsautl}} is deprecated, do not use it
+    \end{itemize}
+  \end{itemize}
+
+  To generate parameters instead of a private key with the \texttt{genpkey} utility, you must use the \texttt{-genparam} option.
+  For example, if you one day feel the strong urge to generate a large prime before going to bed, you can use the following command:
+  \begin{Verbatim}
+openssl genpkey -genparam -algorithm dh \
+    -pkeyopt dh_paramgen_prime_len:3072
+  \end{Verbatim}
+
+  If you wonder what the dots, plus signs, and asterisks that appear mean, then for DH there is a nice InfoSec Stack Exchange \href{https://security.stackexchange.com/a/140639}{\textit{post}} on it.
+
+  In practice, perhaps the primary use case for generating parameters in this manner with OpenSSL is to publish the parameters or share them with other entities.
+  These parameters then form the basis of subsequent procedures\footnotemark{}.
+  For example, to generate a private key with OpenSSL based on a set of parameters, you can use the \texttt{-paramfile} option.
+  \footnotetext{E.g. the frowned upon approach of generating custom Diffie-Hellman parameters for TLS 1.2.}
+
+  \textit{Task.}
+  For this task, familiarise yourself with the OpenSSL documentation.
+  Then, generate a password-protected P-384 key encrypted with AES-128 in CBC mode.\footnotemark{}
+  \footnotetext{\texttt{genpkey} does not support AEAD for some reason, and AES in CTR mode has an implementation bug for this use.
+  Marvels of OpenSSL\dots{}.}
+\end{task}
+
+\begin{task}{HPKE}
+  \textit{Preface.}
+  In the lecture we briefly discussed IES and ECIES.
+  However, as you may recall, the various (!) ECIES specifications are not freely accessible, and IES itself does not have a single \enquote{canonical} standard.
+  The modern alternative is \emph{Hybrid Public Key Encryption} (HPKE), specified in \href{https://datatracker.ietf.org/doc/html/rfc9180}{RFC 9180}.
+
+  In its commonly used form, HPKE combines a KEM, a KDF, and an AEAD scheme.
+  To encrypt a message, the sender must know the recipient's public key -- whether long-term or ephemeral (e.g. to achieve forward secrecy).
+
+  You may then ask, should the sender be authenticated as well?
+  HPKE supports four modes of operation:
+  \begin{itemize}
+    \item Base -- The sender generates a fresh ephemeral keypair for each message and remains anonymous (at the scheme level) to the recipient.
+    \item PSK -- \emph{Pre-shared key}.
+    A symmetric key known to both parties is incorporated into the key \enquote{schedule}.
+    This provides symmetric authenticity guarantees.
+    \item Auth -- The sender additionally uses a static (long-term) key pair to authenticate themselves to the recipient (we will study public-key authenticity later).
+    \item Auth + PSK -- Auth mode with an additional PSK mixed into the key schedule.
+  \end{itemize}
+
+  \textit{Task.}
+  pyca/cryptography has \href{https://github.com/pyca/cryptography/pull/14126}{\emph{recently}} implemented HPKE (in base mode).
+  in fact, it will not be available before version 47 (the current latest version is 45.0.5).
+
+  However, the \href{https://pycryptodome.readthedocs.io/en/latest/src/protocol/hpke.html}{\emph{pycryptodome}} library already supports HPKE.
+
+  For this task do the following:
+  \begin{enumerate}
+    \item Acquire the server's (Discord bot's) long-term P-384 EC public key.
+    \item Generate your own P-384 ephemeral keypair.
+    \item Submit your ephemeral public key to the bot, and receive a ciphertext.
+    \item Decrypt the AES-128-ECB encrypted ciphertext with the context (info)
+    \begin{Verbatim}
+ITC8280 week 6
+    \end{Verbatim}
+    The server is using HPKE in base mode.
+  \end{enumerate}
+\end{task}
+\end{document}
