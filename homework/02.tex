@@ -173,7 +173,9 @@ l0_bits(bs: bytes) -> int
 bruteforce(seed: bytes, difficulty: int) -> tuple[int, bytes]  
   \end{Verbatim}
   that iteratively generates 4-byte nonces until the hash value \texttt{SHA512/256(seed||nonce)}
-  starts with at least 25 zero-bits (the challenge \enquote{difficulty}). That is, you try for nonces:
+  starts with at least 25 zero-bits (the challenge \enquote{difficulty}).
+  Use big-endian encoding for the nonce.
+  That is, you try for nonces:
   \begin{enumerate}
     \item \texttt{0x00000000}
     \item \texttt{0x00000001}
@@ -181,14 +183,14 @@ bruteforce(seed: bytes, difficulty: int) -> tuple[int, bytes]
     \item \dots
   \end{enumerate}
 
-  For example, for the seed \texttt{takraa}, the smallest integer nonce that produces the desired hash is $86197437$.
-  Indeed, the hex value of this integer is \texttt{0x00000000052344bd}, and
+  For example, for the seed \texttt{takraa}, the smallest integer nonce that produces the desired hash is $23742492$.
+  Indeed, the hex value of this integer is \texttt{0x016a481c}, and
    \begin{Verbatim}
-SHA512/256(b"takraa\x00\x00\x00\x00\x05\x23\x44\xbd")
+SHA512/256(b"takraa\x01\x6a\x48\x1c")
   \end{Verbatim}
   yields the hash value
   \begin{Verbatim}
-00000060c45f26ecd9d97c05571088b77ccaed193f5723b7fd526982b5b0eebc
+0000005221e3e4d844fa3ec03d4eea2e1c0d595623fa6a4552acc5caa42e5647
   \end{Verbatim}
   the first 25 bits of which are \enquote{0}.
 
@@ -201,7 +203,7 @@ SHA512/256(b"takraa\x00\x00\x00\x00\x05\x23\x44\xbd")
 \newpage
 
 \begin{task}{Proof of inclusion}
-  Task template file: \texttt{merkle\_proof\_template.py}
+  Task template file: \texttt{merkle\_prove\_template.py}
 
   In this task you will generate a \emph{Merkle inclusion proof} for a leaf in a Merkle tree.
 
@@ -286,38 +288,6 @@ get_merkle_proof(
     \end{Verbatim}
   \end{itemize}
 
-\textit{Perfect roots.}
-
-  Your proof must link the leaf to a \emph{perfect root} on the leftmost branch.
-  I call \enquote{perfect root} the root of a perfect binary subtree, i.e. a subtree that contains a number of leaves that is a power of two.
-
-  For example, in the tree
-  \begin{Verbatim}
-[[l1, l2, l3, l4], [I1, I2], [R]]
-  \end{Verbatim}
-
-  the following nodes are perfect roots on the leftmost branch.
-
-  \begin{itemize}
-    \item $I_1$ (covers leaves $l_1,l_2$)
-    \item $R$ (covers leaves $l_1,l_2,l_3,l_4$)
-  \end{itemize}
-
-  While $I_2$ covers leaves $l_1, l_2$, it was never a root of the full tree.
-
-  If the tree had three leaves $l_1,l_2,l_3$, then
-
-  \begin{itemize}
-    \item $I_1$ would be a perfect root (covers $l_1,l_2$)
-    \item $R$ would not be a perfect root because the subtree contains $3$ leaves
-  \end{itemize}
-
-  In this case you cannot yet create a proof for $l_3$, because it does not belong to any perfect subtree rooted on the leftmost branch.
-  You can either remediate this by inserting new leaves yourself, or wait until other students submit their leaves.
-
-  This simulates the publishing of perfect roots in widely witnessed evidence, which is why the proof must link to them.
-  Your proof must not necessarily link to the latest root if there are older perfect roots that can be linked to.
-
   \textit{Filling the tree.}
   The tree follows the Trillian / Certificate Transparency construction (see the week 5 practice).
 
@@ -367,8 +337,9 @@ SHA512/256(0x01||left_node||right_node)
   \textit{Fallback options.}
   If you cannot implement a dynamic proof generation algorithm:
   \begin{itemize}
-    \item Compute the intermediate hashes manually and hardcode them in your script.
-    Explain it in your report.
+    \item Manually compute the necessary intermediate hashes and construct the \texttt{proof.json}.
+    Explain what you did and how in your report.
+    You will not lose points for this approach.
     \item If you cannot compute the proof, describe in your report which nodes (and positions) would theoretically be required.
   \end{itemize}
 \end{task}
@@ -393,7 +364,7 @@ SHA512/256(0x01||left_node||right_node)
 adversary(message: bytes, tag: bytes) -> tuple[bytes, bytes]
   \end{Verbatim}
 
-  The function must implement the EUF-KMA adversary for the naive MAC $t \gets H(k||m)$ with 128-bit keys.
+  The function must implement the EUF-KMA adversary for the naive MAC $t \gets \mathsf{SHA256}(k||m)$ with 128-bit keys.
   The adversary does not have access to the MAC key or to a MAC oracle, which is why we consider KMA and not CMA.
 
   The function must return a valid (and fresh) (message, tag) pair.
