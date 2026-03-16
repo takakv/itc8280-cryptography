@@ -9,11 +9,8 @@ def recover(c1: bytes, c2: bytes, candidates: Set[bytes]) -> tuple[str, str] | N
 def main():
     args = parse_args()
 
-    try:
-        authed_ct1 = bytes.fromhex(args.ct1)
-        authed_ct2 = bytes.fromhex(args.ct2)
-    except ValueError:
-        raise SystemExit("Error: ciphertext arguments must be valid hex strings")
+    authed_ct1 = bytes.fromhex(args.ct1)
+    authed_ct2 = bytes.fromhex(args.ct2)
 
     # TODO: implement your solution
 
