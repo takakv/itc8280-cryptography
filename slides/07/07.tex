@@ -1,0 +1,551 @@
+\graphicspath{ {../../images/} }
+\usetikzlibrary{external}
+
+\usepackage{fancyvrb}
+
+\title{ITC8280 Fundamentals of Cryptography}
+\subtitle{Public-key cryptography: ElGamal \& RSA}
+\date{\today}
+\author{Taaniel Kraavi}
+\institute%
+{%
+  \textit{School of Information Technologies}\\
+  \textit{Tallinn University of Technology}
+}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Discrete logarithm problem (DLP)}
+  Setting:
+  \begin{itemize}[<+(1)->]
+    \item Let $p$ be a (large) safe prime such that $p = 2q + 1$ with $q$ prime.
+    \item Fix a generator $g$ and define $\GG = \langle g \rangle = \{g^i :0 \le i < q\}$.
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  The following is then considered \emph{intractable}:
+  \[
+    \text{Find $x$ s.t. } g^x \equiv y \pmod{p}\ ,
+  \]
+  where $g, y, p$ are known.
+
+  \pause
+  No longer intractable when a crypto-relevant quantum computer (CRQC) appears!
+\end{frame}
+
+\begin{frame}{Finite field DH}
+  \begin{center}
+    \begin{tikzpicture}
+      \node (bob)   at (0,0)     {\includegraphics[height=80px]{bob}};
+      \node (alice) at (8, 0)    {\includegraphics[height=80px]{alice}};
+      \node (eve)   at (4, -2.1) {\includegraphics[height=80px]{eve}};
+
+      \node (btop) at (bob.east) [yshift=10px] {};
+      \node (atop) at (alice.west) [yshift=10px] {};
+
+      \draw[->,thick] (btop) -- (atop);
+
+      \node (bbot) at (bob.east) [yshift=-10px] {};
+      \node (abot) at (alice.west) [yshift=-10px] {};
+  
+      \draw[<-,thick] (bbot) -- (abot);
+
+      \path let \p1 = (btop) in node (gxt) at (4,\y1) [yshift=7px] {$g^x$};
+      \path let \p1 = (bbot) in node (gyt) at (4,\y1) [yshift=7px] {$g^y$};
+
+      \path let \p1 = (btop) in node (circ1) at (2,\y1) {};
+      \path let \p1 = (bbot) in node (circ2) at (6,\y1) {};
+      
+      \draw[->,thick] (circ1.center) |- (eve.west);
+      \draw[->,thick] (circ2.center) |- (eve.east);
+
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 4px, inner sep=0pt] at (circ1) {};
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 4px, inner sep=0pt] at (circ2) {};
+
+      \node (gx) at (eve.west) [xshift=-10px, yshift=10px] {$g^x$};
+      \node (gy) at (eve.east) [xshift=10px, yshift=10px] {$g^y$};
+
+      \node[anchor=east] (m) at (-0.5, 0.25) {$x\getsu\ZZ_q$};
+      \node[anchor=east] (enc) at (-0.5, -0.25) {$g^{xy}\gets\bigl(g^y\bigr)^x$};
+      \node[anchor=west] (m) at (8.8, 0.25) {$y\getsu\ZZ_q$};
+      \node[anchor=west] (enc) at (8.8, -0.25) {$g^{xy}\gets\bigl(g^x\bigr)^y$};
+
+      \node (enc) at (eve.south) [yshift=-10px] {$g^{xy}$?};
+    \end{tikzpicture}
+  \end{center}
+
+  \pause
+  How to convert the common secret $g^{xy}$ to a valid secret key $\SK\in\{0, 1\}^n$?
+\end{frame}
+
+\begin{frame}{Public-key cryptosystem}
+  A \emph{public-key encryption scheme} is a triple of algorithms:
+  \begin{itemize}[<+(1)->]
+    \item $\GEN$ is a randomised \emph{key generation algorithm}: $(\PK,\SK)\gets\GEN$
+    \item $\ENC$ is a (possibly) randomised \emph{encryption algorithm}: $c\gets\ENC_\PK(m)$
+    \item $\DEC$ is a \emph{decryption algorithm}: $m\gets\DEC_\SK(c)$.
+  \end{itemize}
+
+  \pause
+  There are two keys:
+  \begin{itemize}[<+(1)->]
+    \item $\SK$ is the \emph{secret key}, also called \emph{private key}
+    \item $\PK$ is the \emph{public key} (derived from $\SK$)
+    \item It should be \emph{infeasible} to derive $\SK$ from the $\PK$
+  \end{itemize}
+
+  \pause
+  The cryptosystem is \emph{functional} if $\DEC_\SK(\ENC_\PK(m))=m$.
+\end{frame}
+
+\begin{frame}{Public-key cryptosystem}
+  \begin{center}
+    \begin{tikzpicture}
+      \node (alice) at (0,0)      {\includegraphics[height=80px]{alice}};
+      \node (bob)   at (8, 0)     {\includegraphics[height=80px]{bob}};
+      \node (eve)   at (4, -2.1)  {\includegraphics[height=80px]{eve}};
+  
+      \draw[->,thick] (alice.east) -- (bob.west);
+      
+      \node[anchor=east] (gen) at (11, 2) {$(\PK,\SK)\gets\GEN()$};
+      \draw[<-,dashed,thick] (alice.north) |- (gen.west);
+
+      \node (el) at (eve.north) [xshift=-5px] {};
+      \node (er) at (eve.north) [xshift=5px] {};
+
+      \path let \p1 = (el) in node (circ1) at (\x1,2) {};
+      \path let \p1 = (er) in node (circ2) at (\x1,0) {};
+
+      \node[anchor=west] (m) at (-3, 0.25) {$m\gets\MMM$};
+      \node[anchor=west] (enc) at (-3, -0.25) {$c\gets\ENC_\PK(m)$};
+      \node[anchor=east] (dec) at (11, 0) {$m\gets\DEC_\SK(c)$};
+      
+      \node (c) at (circ2.north) [yshift=5px] {$c$};
+
+      \draw[->,dashed,thick] (circ1) -- (el);
+      \draw[->,thick] (circ2.center) -- (er);
+
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 2px, inner sep=0pt] at (circ1) {};
+      \node[anchor=center,draw,circle,fill=white,thick,minimum size = 2px, inner sep=0pt] at (circ2) {};
+  
+      \node (ska) at (circ1.north) [yshift=5px] {$\PK$};
+    \end{tikzpicture}
+  \end{center}
+
+  \pause
+  CPA becomes trivial
+  \pause
+  $\implies$ randomised encryption is necessary.
+\end{frame}
+
+\begin{frame}{ElGamal}
+  The ElGamal public-key encryption scheme relies on the intractability of the DLP.
+
+  \pause
+  Let $p$ be a safe prime with $p = 2q + 1$, and $\GG$ a subgroup of order $q$ with generator $g$. 
+  $(p, q, \GG, g)$ are then the public parameters.
+
+  \pause
+  Key generation:
+  \begin{itemize}[<+(1)->]
+    \item $x \getsu \ZZ_q$
+    \item $h \gets g^x \bmod{p}$
+    \item $\SK \gets x$
+    \item $\PK \gets h$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{ElGamal}
+  Encryption:
+  \begin{itemize}[<+(1)->]
+    \item $m\in\GG$
+    \item $r\getsu\ZZ_q$
+    \item $\ENC_\PK(m; r) = (g^r, m\cdot \PK^r) = (u, v) = c$
+  \end{itemize}
+
+  \vspace*{2em}
+
+  \pause
+  Decryption:
+  \begin{itemize}
+    \item $\DEC_\SK(c) = \DEC_\SK((u, v)) = v \cdot u^{-\SK}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{ElGamal's usefulness}
+  Nifty properties:
+  \begin{itemize}[<+(1)->]
+    \item IND-CPA by construction (in a proper group)
+    \item ElGamal signature scheme exists
+    \item Can be done on elliptic curves for better performance
+    \item Multiplicatively homomorphic
+    \item Convenient for threshold cryptography
+    \item \enquote{Lifted} ElGamal has additive properties (e-voting)
+  \end{itemize}
+
+  \pause
+  Way too many variations: {\scriptsize\url{https://ibm.github.io/system-security-research-updates/2021/07/20/insecurity-elgamal-pt1}}
+\end{frame}
+
+\begin{frame}{Homomorphic encryption}
+  Perform meaningful operations on a ciphertext without the secret key.
+
+  \vspace*{1em}
+
+  \pause
+  If a cryptosystem is homomorphic for the relation $\circ$, then:
+  \begin{itemize}[<+(1)->]
+    \item $c_1 \circ c_2 = \ENC_\PK(m_1) \circ \ENC_\PK(m_2) = \ENC_\PK(m_1 \circ m_2) = c_3$
+    \item $\DEC_\SK(c_3) = m_1 \circ m_2$
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  Types of homomorphisms:
+  \begin{itemize}[<+(1)->]
+    \item Partially homomorphic: perform certain operations
+    \item Fully homomorphic: perform any computable operation
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Homomorphisms of ElGamal}
+  \pause
+  Multiplicative homomorphism:
+  \begin{itemize}
+    \item $\ENC_\PK(m_1; r_1) \cdot \ENC_\PK(m_2; r_2) = \ENC_\PK(m_1m_2; r_1 + r_2)$
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  Re-randomisation:
+  \begin{itemize}
+    \item $\ENC_\PK(m_1; r_1) \cdot \ENC_\PK(1; r_2) = \ENC_\PK(m_1; r_1 + r_2)$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{\enquote{Lifted} ElGamal}
+  Additive in the exponent:
+  \begin{itemize}[<+(1)->]
+    \item Encrypt $g^m$ instead of $m$: $\ENC^*_\PK(m; r) = \bigl(g^r, g^m \cdot \PK^r\bigr)$
+    \item $\ENC^*_\PK(m_1; r_1) \cdot \ENC^*_\PK(m_2; r_2) = \ENC^*_\PK(m_1 + m_2; r_1 + r_2)$
+    \item Recover $m$ by full inspection (message space must be small)
+    \par
+    \begin{itemize}
+      \item Essentially DL brute-force (pre-computable)
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Modulo bias}
+  How should we generate $n$-bit numbers in a range?
+
+  \pause
+  Naive approach:
+  \begin{itemize}[<+(1)->]
+    \item Generate a random $n$-bit number
+    \item Take the number modulo the upper limit
+  \end{itemize}
+
+  \pause
+  This approach introduces bias!
+\end{frame}
+
+\begin{frame}{Modulo bias}
+  \begin{figure}
+    \includegraphics[height=200px]{bias}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Modulo bias}
+  \pause
+  We must use \alert{rejection sampling} instead!
+
+  \vspace*{1em}
+
+  \pause
+  Example from the GO standard library:
+  \url{https://go.dev/src/crypto/rand/util.go}
+
+  \vspace*{1em}
+
+  \pause
+  Other examples (not an endorsement):
+  \url{https://www.pcg-random.org/posts/bounded-rands.html}
+\end{frame}
+
+\begin{frame}{Integer factorisation}
+  \pause
+  \begin{block}{Fundamental theorem of arithmetic}
+    Every integer greater than $1$ has a unique prime factorisation.
+  \end{block}
+
+  \pause
+  Testing for primality is efficient (polynomial-time)
+  \pause
+  \begin{itemize}
+    \item For large numbers, tests are typically probabilistic
+  \end{itemize}
+  
+  \pause
+  Efficient factorisation is unsolved on classical computers
+  \begin{itemize}[<+(1)->]
+    \item No known polynomial-time algorithm
+    \item Known best general purpose algorithm: GNFS
+    \item Special purpose algorithms exist (e.g. Pollard's rho)
+    \item Shor's algorithm exists for quantum computers (not yet practical)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{RSA cryptosystem}
+  Public-key cryptosystem by Rivest, Shamir \& Adleman (1977).
+  
+  \begin{enumerate}[<+(1)->]
+    \item Generate two secret large primes $p,q$ (caveats apply)
+    \item Compute $n=pq$, and $\varphi(n)=(p-1)(q-1)$
+    \item $e \getsu \ZZ_{\varphi(n)}^*$ and set $d = e^{-1} \bmod \varphi(n)$
+    \item $\SK=(p,q,e,d)$ and $\PK = (n,e)$
+  \end{enumerate}
+
+  \pause
+  Variants exist:
+  \begin{itemize}[<+(1)->]
+    \item Carmichael's totient $\lambda$ over Euler's totient $\varphi$ (e.g. \href{https://csrc.nist.gov/pubs/fips/186-5/final}{FIPS 186-5})
+    \item Originally: pick $d$, compute $e$ (optimises decryption)
+  \end{itemize}
+
+  \pause
+  Extremely tricky to implement safely.
+  If possible, avoid RSA altogether.
+\end{frame}
+
+\begin{frame}{RSA cryptosystem}
+  Encryption:
+  \pause
+  \begin{itemize}
+    \item $c \equiv m^e \pmod{n}$
+  \end{itemize}
+
+  \pause
+  Decryption:
+  \pause
+  \begin{itemize}
+    \item $c^d \equiv \bigl(m^e\bigr)^d \equiv m \pmod{n}$
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  $m < n$ to avoid information loss!
+\end{frame}
+
+\begin{frame}{Issues with \enquote{textbook} RSA}
+  Textbook RSA is:
+  \begin{itemize}[<+(1)->]
+    \item Deterministic (not IND-CPA)
+    \item Malleable (not IND-CCA)
+    \[
+      c_1 \cdot c_2 \equiv m_1^e \cdot m_2^e \equiv (m_1m_2)^e \pmod{n} \equiv \ENC_\PK(m_1 \cdot m_2)
+    \]
+    \item Vulnerable to small-exponent attacks
+    \par
+    \begin{itemize}
+      \item Coppersmith's attack (small public key)
+      \item Wiener's attack (small private key)
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{RSA padding schemes}
+  \pause
+  PKCS \#1:
+  \begin{itemize}[<+(1)->]
+    \item \texttt{RSAES-PKCS1-v1\_5} attacks exist!
+    Do not use!
+    \item \texttt{RSAES-OAEP} (PKCS \#1 v2.0)
+    \item \href{https://datatracker.ietf.org/doc/html/rfc8017}{RFC 8017} -- PKCS \#1 v2.2
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  OAEP -- Optimal Asymmetric Encryption Padding
+  \begin{itemize}[<+(1)->]
+    \item \enquote{Provides} randomness (probabilistic encryption)
+    \item Prevents partial decryption
+    \item IND-CCA1 secure (non-adaptive, \enquote{lunchtime} attack)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{RSAES-OAEP parameters}
+  RSAES-OAEP: RSA Encryption Scheme with OAEP padding.
+
+  \vspace*{0.5em}
+
+  \pause
+  Hash function
+  \begin{itemize}
+    \item SHA1 by default (RFC), OpenSSL uses SHA-256 since v3.4
+  \end{itemize}
+
+  \vspace*{0.5em}
+
+  \pause 
+  Mask generation function (MGF)
+  \pause
+  \begin{itemize}
+    \item Essentially an XOF (extendable-output function)
+    \item Specifically MGF1: iterative hashing with counter (SHA1 by default)
+  \end{itemize}
+
+  \vspace*{0.5em}
+
+  \pause
+  If possible, use the same hash for \enquote{OAEP} and MGF1.
+  \begin{itemize}
+    \item Preferably SHA-256 or SHA-512
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Notes about padding (RSA)}
+  Required for security, not just functionality (unlike block cipher padding).
+
+  \vspace*{1em}
+
+  \pause
+  Padding does not protect against fatal mistakes, e.g.
+  \begin{itemize}[<+(1)->]
+    \item re-using primes with different keys
+    \item using weak or small primes (\href{https://cybersec.ee/2017/10/18/rsa-2048-bit-keys-in-estonian-id-cards-issued-after-october-2014-are-factorizable/}{e.g. ROCA/ID card disaster})
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{RSA numbers}
+  \pause
+  \begin{block}{Semiprime}
+    A number with exactly two prime factors.
+  \end{block}
+  
+  \begin{itemize}[<+(1)->]
+    \item RSA Factoring Challenge (1991)
+    \item \href{https://en.wikipedia.org/wiki/RSA_numbers}{RSA numbers}: published semiprimes
+    \item Discontinued in 2007
+  \end{itemize}
+
+  \pause
+  Largest RSA number factored to date:
+  \begin{itemize}[<+(1)->]
+    \item RSA-250: 829-bit (Feb. 2020)
+    \item $\sim$2700 CPU core-years
+    \item 2.1 GHz Intel Xeon Gold 6130 CPU
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Reminder: security levels}
+  Estimates defined in \href{https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final}{NIST SP 800-57 REV. 5}
+
+  \pause
+  \begin{center}
+  \begin{tabular}{@{}ccccc@{}}
+    Classical strength & Symmetric & FFC & ECC & RSA\\
+    \toprule
+    128 & AES-128 & $L = 3072$  & $f = 256$ & $k = 3072$\\
+    192 & AES-192 & $L = 7680$  & $f = 384$ & $k = 7680$\\
+    256 & AES-256 & $L = 15360$ & $f = 512$ & $k = 15360$
+  \end{tabular}
+  \end{center}
+
+  \pause
+  DLP-based schemes and RSA are \alert{not quantum safe}.
+  \pause
+  \begin{itemize}
+    \item Shor's algorithm -- efficient against DLP and integer factorisation
+    \item Grover's algorithm -- symmetric security level is halved
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Recap: public-key cryptography}
+  Security based on well-studied mathematical assumptions.
+  \begin{itemize}[<+(1)->]
+    \item Provably secure ($\neq$ absolute security)
+    \begin{itemize}
+      \item Security \emph{reduction}: breach of algorithm $\implies$ breach of assumption
+    \end{itemize}
+    \item Assumption: \emph{computational hardness} of problems, e.g.
+    \begin{itemize}
+      \item DLP \& RSA trapdoor -- not quantum-safe
+      \item Lattice problems
+    \end{itemize}
+    \item Public key known to everybody
+    \item Easy to overlook timing side-channels in implementations!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Recap: public-key encryption}
+  Typically we used hybrid public-key encryption rather than \enquote{raw} encryption.
+  \begin{itemize}[<+(1)->]
+    \item HPKE or IES with KEM + DEM
+    \item Performance benefits + easier security analysis
+  \end{itemize}
+
+  \vspace*{1em}
+
+  \pause
+  None of (EC)DH, RSA, ElGamal are quantum-resistant.
+
+  \pause
+  Quantum-safe KEMs are e.g.
+  \begin{itemize}
+    \item ML-KEM -- \href{https://csrc.nist.gov/pubs/fips/203/final}{FIPS 203}
+    \item HQC -- \href{https://www.nist.gov/news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-post-quantum-encryption?utm_source=chatgpt.com}{TBS}
+  \end{itemize}
+
+  \pause
+  No quantum-resistant raw encryption mechanisms have been standardised.
+\end{frame}
+
+\begin{frame}{ASN.1}
+  Abstract Syntax Notation One
+  \begin{itemize}[<+(1)->]
+    \item Many serialisation formats (encoding rules)
+    \item \enquote{DER} used in cryptography: unequivocal
+    \item \href{https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/}{\textit{A Warm Welcome to ASN.1 and DER}} by Let's Encrypt
+  \end{itemize}
+
+  \pause
+  Some tools:
+  \begin{itemize}[<+(1)->]
+    \item \url{https://asn1.io/asn1playground/}
+    \item \url{https://lapo.it/asn1js/}
+    \item \texttt{dumpasn1} (CLI)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{PEM}
+  PEM-format is often used to store cryptographic keys and certificates.
+  \pause
+  \begin{itemize}
+    \item Base-64 encoded DER data with a header and footer
+    \item Header of type \texttt{-----BEGIN [DATA TYPE]-----}
+    \item Footer of type \texttt{-----END [DATA TYPE]-----}
+  \end{itemize}
+
+  \pause
+  E.g.
+  \begin{Verbatim}[fontsize=\scriptsize]
+-----BEGIN PRIVATE KEY-----
+MIIEugIBADANBgkqhkiG9w0BAQEFAASCBKQwggSgAgEAAoIBAQCia55HYo4DjM6H
+sVVls62L4hrbVOOB6KoGO+tMJ3qLSyB697JEDW7aRBkTaLL6viVD0fuysaZMD+qN
+...
+DYsJXzMRkVGNJ/ayDyc=
+-----END PRIVATE KEY-----
+  \end{Verbatim}
+\end{frame}
+
+\end{document}
