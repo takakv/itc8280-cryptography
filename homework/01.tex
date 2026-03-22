@@ -6,8 +6,6 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,calc}
 
-\newcommand*{\ENC}{\mathsf{Enc}}
-
 \usepackage{listings}
 
 \lstset{
@@ -217,9 +215,9 @@ distinguisher() -> bool
   Task template file: \texttt{chachatwo\_template.py}\\
   Supporting file: \texttt{ccpoly\_encrypt.py}
 
-  \texttt{chachatwo.py} is a program that takes as input two hex-encoded ChaCha20-Poly1305 ciphertexts.
-  Assuming that they were encrypted with the same key and tag, it recovers the original plaintexts with the help of a wordlist.
-  Implement it based on the template.
+  \texttt{chachatwo.py} is a program that takes as input two hex-encoded ChaCha20-Poly1305 authenticated ciphertexts.
+  Assuming that they were encrypted with the same key and nonce, it recovers the original plaintexts with the help of a wordlist.
+  Implement the program based on the template.
 
   The wordlist is assumed to be a plaintext file where each row contains one word.
 
