@@ -1,13 +1,13 @@
 import secrets
 from typing import NamedTuple
 
-import tinyec.ec as ec
 import tinyec.registry as reg
+from tinyec.ec import Point
 
 
 class Ciphertext(NamedTuple):
-    u: ec.Point
-    v: ec.Point
+    u: Point
+    v: Point
 
 
 class ElGamal:
@@ -16,7 +16,7 @@ class ElGamal:
         self._secret = secrets.randbelow(self.curve.field.n)
         self.pub = self._secret * self.curve.g
 
-    def encrypt(self, m: ec.Point) -> Ciphertext:
+    def encrypt(self, m: Point) -> Ciphertext:
         # The ephemeral random value is also a scalar.
         r = secrets.randbelow(self.curve.field.n)
 
@@ -28,7 +28,7 @@ class ElGamal:
         lifted = m * self.curve.g
         return self.encrypt(lifted)
 
-    def decrypt(self, ct: Ciphertext) -> ec.Point:
+    def decrypt(self, ct: Ciphertext) -> Point:
         return ct.v - self._secret * ct.u  # v * u^{-x} in multiplicative notation
 
     def lifted_decrypt(self, ct: Ciphertext, candidates: list[int]) -> int | None:
