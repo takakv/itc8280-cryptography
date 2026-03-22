@@ -1,0 +1,309 @@
+\documentclass{homework}
+
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+\usepackage{listings}
+
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\usepackage{fancyvrb}
+\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\partopsep}{0pt}}
+
+\title{03}
+
+\begin{document}
+\maketitle
+
+\textbf{Organisational details}
+
+\begin{itemize}
+  \item Include in your report approximately how long the homework took you.
+  \item You must follow the submission instructions outlined on GitLab.
+  \item If the GitLab pipeline does not succeed, I will not grade your assignment (you will receive 0).
+  The same applies if the Markdown report is illegibly formatted or if you miss the final submission deadline.
+  \item I will provide feedback on Discord and/or GitLab.
+  Check both after receiving your grade.
+  \begin{itemize}
+    \item My initial feedback may be quite minimal as there are so many of you.
+    However, you can request additional feedback.
+    Specific questions are also welcome.
+    \item Do not share the feedback you receive, as this may give others an unfair advantage.
+  \end{itemize}
+  \item Grace clause submission deadline: 11.04.2026 23:59 EEST.
+  \begin{itemize}
+    \item The grace clause applies only if you submit the full work (all tasks) by the soft deadline and the GitLab pipeline succeeds.
+    \item You have one week from receiving the feedback to fix and resubmit your improved work.
+    You may regain up to (but not necessarily) half of the lost points.
+  \end{itemize}
+  \item You may share hints with each other, but not answers or code.
+  Ask questions in the server if they could benefit everyone.
+  \item You may -- and I encourage you to -- ask me questions.
+  \item You may use AI as assistance, but not to solve the tasks themselves.
+  \begin{itemize}
+    \item Acceptable: e.g. checking your understanding, asking how to loop in Python.
+    \item Not acceptable: e.g. generating code logic, library use, or crypto operations.
+    \item If you use AI in any form, including for rewording, state in your report where and what you used it for.
+    \item I recommend asking in the server or contacting me instead of using AI.
+  \end{itemize}
+  \item If I catch you plagiarising, copying, or using AI for code logic, I will report you to the faculty and fail you for the course.
+  \begin{itemize}
+    \item If during the exam you are unable to explain material for which you received homework credit, I may ask you to explain your work.
+    \item If you cannot convince me that the homework is your own work, I will report you to the faculty and fail you.
+  \end{itemize}
+\end{itemize}
+
+\newpage
+
+\begin{center}
+  Theory tasks
+\end{center}
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item \textbf{Please do not use AI for the theoretical part.}
+  Challenge your understanding and look for additional written sources if the lecture and provided materials are not enough.
+  Critical thinking and clear communication are skills -- use them or lose them.
+  \item You must reference all external materials you rely on, including AI tools, if you choose to use them anyway.
+\end{itemize}
+
+\begin{task}{ROCA}
+  Read \href{https://crocs.fi.muni.cz/public/papers/rsa_ccs17}{\emph{this blog post}} by the researchers who discovered ROCA.
+  More than 750 000 Estonian ID cards were impacted by this vulnerability.
+
+  Summarise the discovery (what, why, how to fix) in no more than five sentences.
+  Then succinctly answer the following:
+  \begin{itemize}
+    \item Did the researchers completely break 2048-bit RSA?
+    \item Are ECC keys generated on the affected chips vulnerable?
+    \item How can you detect if your keys are vulnerable?
+    \item What is the worst-case price for factorising a 2048-bit impacted key?
+    \item Name three mitigation strategies if your hardware is impacted.
+  \end{itemize}
+\end{task}
+
+\begin{task}{Bleichenbacher and PKCS\#1 v1.5}
+  Read through the following article: \href{https://www.shysecurity.com/post/20160622-Bleichenbacher%20Attack}{\textit{Bleichenbacher Chosen Ciphertext Attack}}.
+  Supporting materials:
+  \begin{itemize}
+    \item \href{https://wiki.elvis.science/index.php?title=Bleichenbacher_Attack#Steps_of_the_Attack}{\textit{Bleichenbacher Attack by the ELVIS project}}
+    \item \href{https://asecuritysite.com/blog/2022-08-25_Crypto-Groundhog-Day---The-Bleichenbacher-Attack-4b85fc4accf4.html}{\textit{Cryptography Groundhog Day — The Bleichenbacher Attack}}
+  \end{itemize}
+
+  Answer the following:
+  \begin{itemize}
+    \item What is a padding oracle attack in cryptography?
+    \item What does Bleichenbacher's attack allow an attacker to accomplish?
+    \item Very generally, how does the attack work?
+    \item Why does OAEP mitigate this attack? (might need a bit of additional research)
+  \end{itemize}
+\end{task}
+
+\begin{task}{Opening up}
+  Recall that for some secret $x\getsu\ZZ_q$ and a generator $G$, the ElGamal public key is $H\gets xG$.
+  Encryption is then carried out with:
+  \[
+    r \getsu \ZZ_q, \ENC_H(M; r) = (rG, M + rH) = (U, V) = c
+  \]
+  where $r$ is the randomness which makes ElGamal a probabilistic encryption scheme.
+
+  Suppose now that $r$ is leaked, meaning that you know the $r$ used during encryption.
+  Are you then able to recover $M$ from $c$ without the secret key?
+  If yes, how so?
+
+  Can you also decrypt other messages (without gaining access to new values of $r$)?
+\end{task}
+
+\begin{task}{Following up}
+  Regardless of the public-key encryption scheme, the encryption randomness must always be freshly sampled, kept secret, and discarded after encryption.
+
+  Explain how, if the encryption randomness leaks and the set of possible messages is known (e.g. the choices \enquote{yes} or \enquote{no} in a referendum), an adversary can recover the message, regardless of the public-key encryption scheme used (e.g. RSAES-OAEP or lifted ElGamal).
+\end{task}
+
+\newpage
+\setcounter{task}{0}
+
+\begin{center}
+  Practical tasks
+\end{center}
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item I must be able to run your program with Python 3.14 and OpenSSL v3.6.1\footnotemark{}.
+  \footnotetext{You may use older versions of Python and OpenSSL as long as they are interoperable with mine.}
+  \item The GitLab pipeline must succeed before you submit your assignment.
+  \item You may not use third-party modules not included in \texttt{requirements.txt}.
+  You are free to import any built-in module.
+  If you feel the need to import another third-party module, please check with me beforehand!
+  \item All errors must be handled: print your own descriptive message starting with \enquote{Handled:} and exit with error code \texttt{1}.
+  Filesystem errors (e.g. file read/write errors) need not be handled.
+  You \textbf{may not use} blanket try except clauses (catch all) since then I cannot know whether you anticipated the error.
+  \item You must identify potential edge cases yourself.
+  You may not ask an AI to implement them or identify them for you.
+  \item You may change anything in the template files, unless specified otherwise, as long as the GitLab pipeline succeeds.
+\end{itemize}
+
+\begin{task}{RSA interop}
+  Homework template file: \texttt{ossl\_rsa\_template.py}
+
+  Create a Python3 program that performs RSAES-OAEP encryption/decryption by calling OpenSSL.
+  Recall from the lecture that OAEP padding is required for probabilistic encryption, and to prevent some subtle attacks.
+  Make sure to use OAEP with SHA-256 for padding derivation.
+
+  Your program must provide three separate tools:
+  \begin{itemize}
+    \item \texttt{genpkey} -- generate an RSA private key
+
+    Your program must generate a $3072$-bit RSA private key with OpenSSL and export it into a file in PEM format.
+    Your program \emph{must not} print the key-generation progress bar to the console.
+
+    The private key must be password protected according to the following:
+    \begin{itemize}
+      \item The key derivation function for obtaining the encryption key must be PBKDF2, and the parameters must be:
+      \begin{itemize}
+        \item \texttt{HMAC-SHA512} for the PRF,
+        \item an iteration count of $210000$ (OWASP recommendation).
+      \end{itemize}
+      \item The key must be encrypted with AES-256 in CBC mode and use the PKCS\#8 format.
+      \item At no point should the private key be written unencrypted to the disk.
+    \end{itemize}
+
+    \begin{tcolorbox}[title=Note]
+      New versions of OpenSSL (> 3.0) should use PKCS\#8 by default if you export an encrypted private key in PEM, but do not allow for the fine-grained control needed for this task.
+
+      Hint: Can you find a tool in the OpenSSL documentation which allows more fine-grained control over PKCS\#8 encrypted private keys? 
+    \end{tcolorbox}
+
+    You can see what the expected private key structure looks like by dumping the ASN.1 structure of the example private key.
+
+    Example invocation:
+    \begin{Verbatim}
+ossl_rsa.py genpkey --out key.pem --pass secret
+    \end{Verbatim}
+
+    \item \texttt{pkey} -- public key derivation
+    
+    Your program must extract the public key from a private key and export it into a file in PEM format by using OpenSSL.
+
+    Example invocation:
+    \begin{Verbatim}
+ossl_rsa.py pkey --in key.pem \
+    --out pub.pem --pass secret
+    \end{Verbatim}
+
+    \item \texttt{pkeyutl} --- file encryption and decryption
+    
+    Your program must output the encryption or decryption of the specified input file with the specified key to the specified output file using OpenSSL.
+
+    Example invocation for encryption:
+    \begin{Verbatim}
+ossl_rsa.py pkeyutl --encrypt \
+    --inkey pub.pem --in message.txt --out data.enc
+    \end{Verbatim}
+
+    Example invocation for decryption:
+    \begin{Verbatim}
+ossl_rsa.py pkeyutl \
+    --inkey key.pem --in data.enc --out data.enc \
+    --pass secret
+    \end{Verbatim}
+  \end{itemize}
+
+  Make sure to handle errors by printing an informational message and exiting with an error code (\texttt{sys.exit(1)}) without printing the exception trace.
+  Your program must not crash if missing parameters are provided, the wrong password is provided, OpenSSL fails, etc.
+  Some error handling and hints are part of the template, but not all of it.
+
+  All printed error messages must start with the string \enquote{Handled:}.
+
+  You do not however have to (but you may) check for file I/O errors, i.e. you may assume that if you provide a filename, then that filename does exist or can be written to.
+
+  \begin{tcolorbox}[title=Reminder]
+    In practice, providing secrets (e.g. keys, passwords, etc.) directly on the CLI as an argument to a program is a terrible idea, since they typically get logged into your terminal history!
+  \end{tcolorbox}
+\end{task}
+
+\begin{task}{Nifty homomorphism}
+  Task template file: \texttt{homomorphic\_template.py}
+
+  \textit{Preface.}
+  The legendary cryptographer Mr. Cry has developed the following authentication protocol:
+  \begin{itemize}
+    \item Authorised users know the secret authentication code.
+    \item To gain access to the server, users encrypt this code (with ElGamal) to obtain the \emph{token}, submit the token to the server, and the server decrypts it.
+    If the decrypted result corresponds to the authentication code, the user is granted access.
+    \item To avoid authentication token re-use, the server remembers all previously used tokens.
+    If you submit a previously used token, the server will deny you access.
+    \item To mitigate \enquote{double-submission} (you submit the same token twice e.g. due to bad latency), the server displays the previously used token to the user.
+  \end{itemize}
+
+  Your goal is to forge a token and thus gain access.
+
+  \textit{Requirements.}
+  Implement the function
+  \begin{Verbatim}
+octets_to_point(octets: bytes, curve: Curve) -> Point
+  \end{Verbatim}
+  that parses a SEC~1 uncompressed point byte string representation\footnote{\texttt{0x04 || xCoordBytes || yCoordBytes} as specified in \href{https://www.secg.org/sec1-v2.pdf\#subsubsection.2.3.3}{SEC~1 v2.0 \S 2.3.3}.} and returns the corresponding point on the given curve.
+
+  Implement the function
+  \begin{Verbatim}
+point_to_octets(p: Point) -> bytes
+  \end{Verbatim}
+  that serialises a point into the SEC~1 uncompressed point representation.
+
+  The \texttt{Point} and \texttt{Curve} types may be taken from the \texttt{fastecdsa} (preferred) or \texttt{tinyec} library.
+  If the library has appropriate methods for (de)serialisation, you may use those in the functions.
+
+  Your program takes as input an EC ElGamal ciphertext (the token), consisting of two hex-encoded points ($U$, $V$), and a file containing the PEM-encoded EC public key in the standard\footnote{\href{https://datatracker.ietf.org/doc/html/rfc5480}{RFC 5480}, with \href{https://datatracker.ietf.org/doc/html/rfc3279}{RFC 3279} and \href{https://datatracker.ietf.org/doc/html/rfc5280\#section-4.1.2.7}{RFC 5280} being related.} format.
+  The program outputs a fresh token, printing $U$ and $V$ as hex-encoded points on separate lines.\footnote{This is taken care of by the template.}
+  E.g.
+  \begin{Verbatim}
+homomorphic.py -u 048be2...b6e9 -v 0462c3...4af0 -k pub.pem
+04ff6d...e83a
+0433f7...8aa7
+  \end{Verbatim}
+  without the dots in the middle.
+
+  The program must work with the P-384 curve, and you may hardcode that curve value in the main function.
+  However, if an unsupported public key is provided, your program must handle this without crashing.
+  
+  Your task succeeds if:
+  \begin{itemize}
+    \item $\DEC_x\bigl((U_\mathit{challenge}, V_\mathit{challenge})\bigr) = \DEC_x\bigl((U_\mathit{you}, V_\mathit{you})\bigr)$, and
+    \item $(U_\mathit{challenge}, V_\mathit{challenge}) \neq (U_\mathit{you}, V_\mathit{you})$.
+  \end{itemize}
+
+  You can get a test token from the Discord bot and submit your answer to it to validate your solution.
+\end{task}
+
+\begin{task}{Posting the quantum}
+  Task template file: \texttt{mlkem\_template.py}
+
+  The golden rule of cryptography is that you should not roll your own cryptography.
+  But what do we do when libraries and tooling do not yet implement everything we need?
+
+  Realistically, we should wait for appropriate library and tooling support to become available, or hire experts, neither of which is an option for this homework assignment.
+
+  Implement the \texttt{exchange} tool using OpenSSL's ML-KEM support to encapsulate a shared secret under the provided ML-KEM public key.
+
+  Implement the \texttt{decrypt} tool that uses HKDF to derive a 256-bit AES key from the shared secret, and uses it to decrypt an AES-GCM authenticated ciphertext.
+  HKDF should be instantiated with SHA-384, the context info string \texttt{ITC8280 Assignment 3}, and no salt.
+
+  Supporting files:
+  \begin{itemize}
+    \item \texttt{mlkem.pub.pem} -- an example ML-KEM public key
+    \item \texttt{shared.bin} -- a shared secret (in practice, this should be secret)
+    \item \texttt{ciphertext.bin} -- an authenticated ciphertext encrypted with a key derived from the shared secret
+  \end{itemize}
+\end{task}
+
+\end{document}
