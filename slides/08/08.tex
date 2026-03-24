@@ -481,22 +481,42 @@
 \end{frame}
 
 \begin{frame}{Digital certificates}
-  A \emph{certificate} binds keys to an entity's attributes (e.g. name, email).
+  A \emph{certificate} binds a public key to an identity (e.g.\ name, domain)
+  \begin{itemize}[<+(1)->]
+    \item The identified entity is the \emph{subject}
+    \item The certificate is created and signed by the \emph{issuer}
+  \end{itemize}
 
   \vspace*{1em}
 
   \pause
-  Let there be two parties: a \emph{subject} and an \emph{issuer}.
+  If you trust the issuer, you can trust the certificate's contents
+  \begin{itemize}[<+(1)->]
+    \item The certificate is genuine if the issuer's signature verifies
+    \item Verifying the certificate requires the issuer's public key
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Issuing at a glance}
+  Informally, certificates are issued as follows:
   \begin{enumerate}[<+(1)->]
     \item The subject sends their public key and identity attributes to the issuer
-    \item The issuer verifies the info, bundles it together, and signs the bundle
+    \item The issuer validates the subject's identity
+    \par
     \begin{itemize}
       \item The issuer confirms the attributes somehow
-      \item The issuer verifies secret key ownership of the entity
+      \item Otherwise, the subject can claim to be someone else
     \end{itemize}
+    \item The issuer verifies the subject's proof of possession
+    \par
+    \begin{itemize}
+      \item The subject must prove possession of the corresponding private key
+      \item Otherwise, the subject can present someone else's public key
+    \end{itemize}
+    \item The issuer bundles the key and attributes, and signs the bundle
   \end{enumerate}
 
-  \vspace*{1em}
+  \vspace*{0.5em}
 
   \pause
   The signed bundle is the certificate.
