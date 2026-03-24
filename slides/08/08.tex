@@ -440,16 +440,15 @@
 \begin{frame}{Transitive trust}
   Consider the following:
   \begin{itemize}[<+(1)->]
-    \item Alice and Carol are friends
-    \item Bob and Carol are friends
-    \item Alice does not know Bob
+    \item Carol is friends with both Alice and Bob
+    \item Alice does not yet know Bob
     \item Friends know each other's public keys
   \end{itemize}
 
   \vspace*{1em}
 
   \pause
-  Carol gives Bob her signature $\sigma_{\PK_B}$ on the message
+  Carol gives Bob her signature $\sigma_{C_B}$ on the message
   \begin{center}
     $C_B = $ \enquote{$\PK_B$ is Bob's public key}
   \end{center}
@@ -462,7 +461,7 @@
       \node (alice) at (0,0)  {\includegraphics[height=80px]{alice}};
       \node (bob)   at (8, 0) {\includegraphics[height=80px]{bob}};
 
-      \draw[<-, thick] (alice.east) -- node[above] {$(m, \sigma),\ \bigl(C_B, \sigma_{\PK_B}\bigr)$} (bob.west);
+      \draw[<-, thick] (alice.east) -- node[above] {$(m, \sigma),\ \bigl(C_B, \sigma_{C_B}\bigr)$} (bob.west);
 
       \node[anchor=west]  at (8.5, 0.25)  {$m\gets\MMM$};
       \node[anchor=west]  at (8.5, -0.25) {$\sigma\gets\SIGN_{\SK_B}(m)$};
@@ -473,7 +472,7 @@
       \draw[->,dashed,thick] (alice-left) -- node[above] {$\PK_C$} (alice-left -| alice.north) -- (alice.north);
 
       \node (bob-right) at (10, 2) {};
-      \draw[->,dashed,thick] (bob-right) -- node[above] {$C_B,\ \sigma_{\PK_B}$} (bob-right -| bob.north) -- (bob.north);
+      \draw[->,dashed,thick] (bob-right) -- node[above] {$C_B,\ \sigma_{C_B}$} (bob-right -| bob.north) -- (bob.north);
     \end{tikzpicture}
   \end{figure}
 
