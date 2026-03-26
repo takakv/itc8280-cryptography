@@ -179,11 +179,11 @@ openssl pkeyutl -verify -digest sha256 \
   Download the certificates \texttt{ee.pem}, \texttt{int.pem}, and \texttt{root.pem} from the course GitHub.
 
   We can inspect (and create) X.509 certificates with OpenSSL's \href{https://docs.openssl.org/master/man1/openssl-x509/}{\texttt{x509}} tool.
-  To print the full certificate in a human readable form, we can use:
+  To print a certificate in human-readable form:
   \begin{cmdblock}
 openssl x509 -in ee.pem -noout -text
   \end{cmdblock}
-  where \texttt{-noout} is necessary to avoid outputting the certificate's PEM, which the tool does by default.
+  where \texttt{-noout} suppresses the PEM output, which the tool prints by default.
 
   Inspect all three certificates, compare them, and try to get a feel for the structure of an X.509 (v3) certificate.
   Some general comments:
@@ -197,30 +197,30 @@ openssl x509 -in ee.pem -noout -text
   \begin{itemize}
     \item Basic Constraints extension:
     \begin{itemize}
-      \item \texttt{CA:FALSE} for \texttt{ee.pem} which indicates that this is an end-entity certificate.
+      \item \texttt{CA:FALSE} for \texttt{ee.pem}, which indicates that this is an end-entity certificate.
       In \texttt{int.pem} and \texttt{root.pem} we have \texttt{CA:TRUE}.
       \item In \texttt{int.pem}, the field also contains \texttt{pathlen:0} which indicates that this CA cannot further issue CA certificates, only leaf certificates.
     \end{itemize}
     \item Key Usage extension:
     \begin{tcolorbox}[title={Abuse of terminology}]
       For simplicity, I may attribute properties to a public key that are technically properties of its certificate.
-      E.g. I might say \enquote{this public key may only be used for X} instead of \enquote{the certificate restricts this key's usage to X}.
+      E.g. I may say \enquote{this public key may only be used for X} instead of \enquote{the certificate restricts this key's usage to X}.
     \end{tcolorbox}
     \begin{itemize}
       \item Recall that a CA issues certificates by signing them.
       \texttt{int.pem} and \texttt{root.pem} are CA certificates and thus have the \texttt{Certificate Sign} capability.
-      \texttt{ee.pem} is an end-entity certificate, and thus this capability is not set.
+      \texttt{ee.pem} is an end-entity certificate, and thus does not have this capability.
 
       More specifically, the following is crucial:
       \begin{itemize}
         \item When verifying an issuer's signature on an entity's certificate, the issuer's public key must have the \texttt{Certificate Sign} capability.
 
-        A CA must have it, an end-entity must not have it.
+        A CA must have it; an end-entity must not.
         \item When verifying a signature on a CRL (next week's topic), the signer's public key must have the \texttt{CRL Sign} capability.
         \item When verifying any other signature, the signer's public key must have the \texttt{Digital Signature} or/and \texttt{Non Repudiation} capability.
         Neither of those capabilities encompasses the certificate and CRL signing capabilities.
 
-        The difference between the DS and NR capabilities is not clear cut.
+        The difference between the DS and NR capabilities is not clear-cut.
         We will talk about this later.
       \end{itemize}
       Note that these conditions are standardised conventions/policies, and are not cryptographic in nature.
@@ -229,14 +229,18 @@ openssl x509 -in ee.pem -noout -text
 
     \item Subject and Authority Key Identifier extensions:
     \begin{itemize}
-      \item The Subject Key Identifier identifies a particular public key and is\footnotemark{} derived from the public key.
-      \footnotetext{While it should be derived from the public key, it is not required by \href{https://datatracker.ietf.org/doc/html/rfc5280\#section-4.2.1.2}{RFC 5280}.}
+      \item The Subject Key Identifier is a value that should uniquely identify\footnotemark{} the subject's public key.
+      \footnotetext{While it should therefore be derived from the public key, it is not required by \href{https://datatracker.ietf.org/doc/html/rfc5280\#section-4.2.1.2}{RFC 5280}.}
       If a public key has multiple certificates, the SKI should be the same in all of them.
       \item The Authority Key Identifier identifies the public key of the certificate signer, i.e. the issuer.
       \item Notice that the AKI of \texttt{ee.pem} is the SKI of \texttt{int.pem}, and the AKI of \texttt{int.pem} is the SKI of \texttt{root.pem}.
-      \item Notice that the AKI of \texttt{root.pem} is the SKI of \texttt{root.pem} and that the Issuer and Subject are also the same.
+      \item Observe also that the AKI of \texttt{root.pem} is the SKI of \texttt{root.pem} and that the Issuer and Subject are also the same.
       Indeed, since this is a root certificate, the issuer is the subject and the certificate is self-signed.
     \end{itemize}
   \end{itemize}
+\end{task}
+
+\begin{task}{Verifying certificates}
+  We will cover how certificates and the certificate chain should be verified next week, as there are additional aspects to PKI that we have not yet learned about.
 \end{task}
 \end{document}
