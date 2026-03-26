@@ -8,7 +8,25 @@
 \RequirePackage{amsthm}
 
 \RequirePackage{tcolorbox}
+\tcbuselibrary{listings,skins,breakable}
 \RequirePackage{fancyvrb}
+
+\newtcblisting{cmdblock}{
+  colback=black!5,
+  colframe=black!20,
+  listing only,
+  listing options={
+    basicstyle=\small\ttfamily,
+    columns=flexible,
+    breaklines=true,
+    breakindent=1em,
+    aboveskip=0pt,
+    belowskip=0pt,
+  },
+  left=3pt, right=3pt, top=3pt, bottom=3pt,
+  arc=3pt,
+  boxrule=0.5pt,
+}
 
 \RequirePackage[hidelinks]{hyperref}
 
