@@ -1,0 +1,3 @@
+cryptography==46.0.5
+fastecdsa==3.0.1
+tinyec==0.4.0
