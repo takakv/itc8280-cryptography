@@ -1,0 +1,11 @@
+ldapsearch -H ldaps://esteid.ldap.sk.ee/ -x -b "c=EE" "(serialNumber=PNOEE-xxx)"
+ldapsearch -H ldaps://ldap.eidpki.ee/ -x -b "dc=ESTEID,c=EE,dc=ldap,dc=eidpki,dc=ee" "(serialNumber=PNOEE-xxx)"
+
+openssl verify -x509_strict -CAfile EE-GovCA2018.der.crt \
+    -untrusted esteid2018.der.crt cert.der
+
+openssl verify -x509_strict -CAfile EE-GovCA2018.der.crt \
+    -untrusted esteid2018.der.crt -crl_download -crl_check_all cert.der
+
+openssl ocsp -issuer esteid2018.der.crt -cert cert.der \
+    -url http://aia.sk.ee/org2021e -CAfile EE-GovCA2018.der.crt -text
