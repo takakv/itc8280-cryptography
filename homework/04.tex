@@ -1,0 +1,324 @@
+\documentclass{homework}
+
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+\usepackage{listings}
+
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\usepackage{fancyvrb}
+\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\partopsep}{0pt}}
+
+\title{04}
+
+\begin{document}
+\maketitle
+
+\textbf{Organisational details}
+
+\begin{itemize}
+  \item Include in your report approximately how long the homework took you.
+  \item You must follow the submission instructions outlined on GitLab.
+  \item If the GitLab pipeline does not succeed, I will not grade your assignment (you will receive 0).
+  The same applies if the Markdown report is illegibly formatted or if you miss the final submission deadline.
+  \item I will provide feedback on Discord and/or GitLab.
+  Check both after receiving your grade.
+  \begin{itemize}
+    \item My initial feedback may be quite minimal as there are so many of you.
+    However, you can request additional feedback.
+    Specific questions are also welcome.
+    \item Do not share the feedback you receive, as this may give others an unfair advantage.
+  \end{itemize}
+  \item Grace clause submission deadline: 19.04.2026 23:59 EEST.
+  \begin{itemize}
+    \item The grace clause applies only if you submit the full work (all tasks) by the soft deadline and the GitLab pipeline succeeds.
+    \item You have one week from receiving the feedback to fix and resubmit your improved work.
+    You may regain up to (but not necessarily) half of the lost points.
+  \end{itemize}
+  \item You may share hints with each other, but not answers or code.
+  Ask questions in the server if they could benefit everyone.
+  \item You may -- and I encourage you to -- ask me questions.
+  \item You may use AI as assistance, but not to solve the tasks themselves.
+  \begin{itemize}
+    \item Acceptable: e.g. checking your understanding, asking how to loop in Python.
+    \item Not acceptable: e.g. generating code logic, library use, or crypto operations.
+    \item If you use AI in any form, including for rewording, state in your report where and what you used it for.
+    \item I recommend asking in the server or contacting me instead of using AI.
+  \end{itemize}
+  \item If I catch you plagiarising, copying, or using AI for code logic, I will report you to the faculty and fail you for the course.
+  \begin{itemize}
+    \item If during the exam you are unable to explain material for which you received homework credit, I may ask you to explain your work.
+    \item If you cannot convince me that the homework is your own work, I will report you to the faculty and fail you.
+  \end{itemize}
+\end{itemize}
+
+\newpage
+
+\begin{center}
+  Theory tasks
+\end{center}
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item \textbf{Please do not use AI for the theoretical part.}
+  Challenge your understanding and look for additional written sources if the lecture and provided materials are not enough.
+  Critical thinking and clear communication are skills -- use them or lose them.
+  \item You must reference all external materials you rely on, including AI tools, if you choose to use them anyway.
+\end{itemize}
+
+\begin{task}{GPG}
+  We briefly covered the web-of-trust approach and the existence of PGP, however, we did not go in depth on what PGP is.
+
+  PGP stands for \emph{Pretty Good Privacy} and is a cryptographic toolset which can be used for encryption and signing of data.
+  However, PGP is proprietary software (its history is quite complex) which therefore limits its use by the open source community and the general public.
+
+  Since the functionality provided by the PGP was useful, eventually the \emph{OpenPGP standard} was developed (\href{https://datatracker.ietf.org/doc/html/rfc4880}{RFC 4880}).
+  In July of 2024, \href{https://datatracker.ietf.org/doc/html/rfc9580}{RFC 9580} was published to supersede RFC 4880, but the state of implementations is muddy.
+  If you are interested in tech drama, see:
+  \begin{itemize}
+    \item \href{https://lwn.net/Articles/953797/}{A schism in the OpenPGP world},
+    \item \href{https://blog.pgpkeys.eu/critique-critique.html}{A Critique on \enquote{A Critique on the OpenPGP Updates}}.
+  \end{itemize}
+
+  A complete and free implementation of the OpenPGP standard is the \emph{GNU Privacy Guard}, abbreviated as GPG (or GnuPG, or GPG2).
+  GPG has many uses, but the most \enquote{mainstream}\footnote{This is from my own experience, and is likely not a global truth.} are email encryption and signing\footnote{A nice resource: \url{https://emailselfdefense.fsf.org/en/}}, SSH access (SSH can work with GPG, but should it?), and signing git commits\footnotemark{}.
+  \footnotetext{\url{https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits}}
+
+  \begin{tcolorbox}
+    I believe, for various reasons, e.g. the lack of forward secrecy and allowing users and lack of sensible safeguards\footnote{It is particularly easy to do stupid things with PGP due to the abundance of settings.}, that GPG (and PGP) is legacy tooling and should be deprecated for most purposes.
+    While not all of the community would agree with me, I recommend that you avoid PGP unless there are no better alternatives for a specific purpose.
+  \end{tcolorbox}
+
+  \begin{tcolorbox}
+    Git commits can nowadays also be signed with SSH keys.
+    GitHub, GitLab and BitBucket all support it.
+    SSH signing was added to Git version 2.34.0 in 2021.
+    \href{https://github.com/git/git/blob/master/Documentation/RelNotes/2.34.0.txt}{(changelog)}
+  \end{tcolorbox}
+
+  GPG is a command-line tool, however different frontends exist\footnote{\url{https://gnupg.org/software/frontends.html}}.
+  The GUI which I have seen used the most is Kleopatra, which is available on Windows, macOS and Linux.
+  For Windows, the Kleopatra GUI comes with \href{https://gpg4win.org/index.html}{Gpg4win}.
+  Still, I typically use the CLI instead of a GUI (in the rare cases when I have to use GPG).
+
+  For this task, read through the following three articles:
+  \begin{itemize}
+    \item \href{https://www.digitalocean.com/community/tutorials/how-to-use-gpg-to-encrypt-and-sign-messages}{\textit{How To Use GPG to Encrypt and Sign Messages}} (DigitalOcean)
+    \begin{itemize}
+      \item Pay special attention to the \enquote{Create a Revocation Certificate} section!
+      \item Summarise in a few sentences how public keys are typically shared and made available to other parties.
+      
+      If you make your key available using this method, can you later make it so that the keys can no longer be searched for / obtained by others?
+    \end{itemize}
+    \item \href{https://www.gnupg.org/gph/en/manual/x135.html}{\textit{Making and verifying signatures}} (The GNU Privacy Handbook)
+    \begin{itemize}
+      \item For each of the different signature methods, explain their usefulness and describe a use-case where that specific method is suitable, but the others are not.
+    \end{itemize}
+
+    \item \href{https://www.gnupg.org/gph/en/manual/x334.html}{\textit{Validating other keys on your public keyring}}
+    \begin{itemize}
+      \item Answer the following: what is the difference between \enquote{trust} and \enquote{validity} when speaking about trust in GPG keys and their owners?
+    \end{itemize}
+  \end{itemize}
+
+  All three articles will help you with the practical tasks.
+
+  \textit{Addendum.}
+  If you have to use GPG and want to use it with a YubiKey, check out the article \href{https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP}{\textit{Using Your YubiKey with OpenPGP}}.
+\end{task}
+
+\begin{task}{Certificate ToS}
+  Read through the short summary on \href{https://www.id.ee/en/article/compete-information-about-the-terms-of-use-of-certificates/\#what-you-need_2}{\textit{What you need to know about the terms and conditions for the use of ID-card certificates}}.
+
+  Then, answer the following questions:
+  \begin{itemize}
+    \item What must you do when you lose your document or it is stolen?
+    \item How can you prevent the unauthorised use of your document?
+    \item What is the difference between suspending certificates and declaring them invalid?
+    \item What are the differences in revocation and suspension between SK and Zetes ID card certificates?
+    \item Can you anonymously use your document digitally?
+    \item Does the ID card serve any purpose after its certificates have been invalidated?
+  \end{itemize}
+\end{task}
+
+\begin{task}{CDOC2}
+  Based on \href{https://www.id.ee/en/article/cdoc-2-0/}{\textit{CDOC 2.0 (id.ee)}} answer the following:
+
+  \begin{itemize}
+    \item What is the purpose of CDOC?
+    \item What are two advantages of the capsule-server approach introduced in CDOC2?
+    \item Are capsule servers mandatory in CDOC2?
+    \item Is CDOC2 quantum-safe?
+    \item Is CDOC2 with capsule servers suitable for long-term encrypted storage of documents?
+  \end{itemize}
+\end{task}
+
+\begin{task}{ASiC-E containers}
+  Task file: \texttt{pubkey.asice}
+
+  Investigate the signature container, then answer the following questions:
+  \begin{itemize}
+    \item What was the time on my computer at the moment of singing (Estonian local time)?
+    \item What is the signing time reported by DigiDoc (Estonian local time)?
+    \item Do these times differ? Why yes/why not?
+    \item What eID \enquote{device} (ID card, Mobile-ID, Smart-ID) did I use to issue the signature?
+    How do you know which?
+  \end{itemize}
+\end{task}
+
+\newpage
+\setcounter{task}{0}
+
+\begin{center}
+  Practical tasks
+\end{center}
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item The GitLab pipeline must succeed before you submit your assignment.
+\end{itemize}
+
+\begin{task}{Linking up}
+  Task files: \texttt{const1.asice}, \texttt{const2.asice}
+
+  Your task is to create an ASiC-E container with both signatures in it (\autoref{fig:digidoc}).
+  Explain what you did to make it so and include commands/screenshots.
+
+  \begin{figure}[h!]
+    \center
+    \includegraphics[width=\textwidth]{../images/combined}
+    \caption{Expected signature status displayed by DigiDoc.}
+    \label{fig:digidoc}
+  \end{figure}
+
+  Include the file as \texttt{combined.asice} in your repository.
+
+  \textit{Hint.}
+  The \href{https://www.id.ee/wp-content/uploads/2021/06/bdoc-spec212-eng.pdf}{BDOC 2.1} reference can help you if you are unable to re-assemble the container in a way such that DigiDoc actually opens it.
+\end{task}
+
+\begin{task}{Signing your commits}
+  You must set up a commit signing key on TalTech's GitLab.
+  I recommend that you use an SSH key for signing commits, but you can also use GPG or S/MIME.
+
+  For the task, you must push a signed commit into your homework branch.
+  This commit should include the public key of the key you use for signing: call it simply \texttt{key}.
+  The key should not be a binary blob: it should open in a text editor (e.g. PEM).
+  Your task is considered complete if the GUI shows that your commit is verified.
+
+  \begin{figure}[h!]
+    \center
+    \includegraphics[width=\textwidth]{../images/gitlab_verified.png}
+    \caption{Verified commit on GitLab.}
+  \end{figure}
+
+  Include the full commit link in your report.
+\end{task}
+
+\begin{task}{GPG keys}
+  Generate a GPG primary key that can only certify other keys, but not sign or encrypt, and which is valid for two months.
+  Then, generate a subkey for it which can only sign data, but not encrypt, and which is valid for one month.
+  Please do not publish your key to any keyserver online!
+
+  Both keys must use Ed25519.
+  For the key metadata, use your real name and your TalTech email.
+  For the comment, use \enquote{Assignment 4}.
+  \autoref{fig:gpg} displays what your key should look like on the command line.
+  You can also find my GPG public key in \texttt{pubkey.asice}.
+  Pay attention to the \texttt{[C]} and \texttt{[S]} markers.
+
+  \begin{figure}[h!]
+    \center
+    \includegraphics[width=\textwidth]{../images/gpg_pubkey}
+    \caption{Example metadata for a key with the required parameters.}
+    \label{fig:gpg}
+  \end{figure}
+
+  Include a screenshot showing that the key is in your keyring in your report (CLI and GUI are both fine).
+
+  Export your full public key in ASCII-armored format, sign it with your Estonian eID\footnote{Smart-ID is fine too, even though it is not officially classified as eID in Estonia.} and include the signed container as \texttt{gpg.asice} in your repository.
+  You can leave the container unsigned if you do not have an Estonian eID or do not wish to sign the container for some reason.
+  If you leave the container unsigned, I would be interested in the reason, but you do not have to include one.
+
+  Next, generate a revocation certificate for the primary key, if one is not automatically created during key creation.
+
+  \begin{tcolorbox}
+    If you ever have to generate a GPG key, make sure to always also generate a revocation certificate!
+    Make sure to store this certificate in a safe but available (for you) manner.
+    This allows you to revoke a key should you lose it or should it become compromised.
+    \tcblower
+    Proper key management with GPG is quite complex, e.g. due to the subkey system and the usual complexity of rotating keys.
+    As such, revocation certificates become especially important for potential damage control.
+  \end{tcolorbox}
+
+  Encrypt the revocation certificate to my ID code using CDOC2 with DigiDoc.
+  You can get my ID code from my signed container.
+  \begin{tcolorbox}
+    In practice, you should of course never leak your revocation certificate, as anyone can permanently revoke your key with it.
+  \end{tcolorbox}
+
+  Include the file as \texttt{revocation.cdoc2} in your repository.
+\end{task}
+
+\begin{task}{A bit of everything}
+  Homework challenge file: \texttt{challenges.txt}
+
+  In the homework challenge file, you will find two columns of data: the first column includes salted hashes of student usernames (e.g. takraa) while the second column includes SHA-256 hashes of registration codes of Estonian organisations.
+  Each student is assigned a different organisation.
+
+  Your task is then to:
+  \begin{enumerate}
+    \item Find which entry corresponds to you (i.e. hashes your student username).
+    \item Find the company your challenge is for (i.e. find the SHA-256 pre-image).
+    \begin{itemize}
+      \item The pre-image is an ASCII string of the form \texttt{itc8280-XXXXXXXX}, where each \texttt{X} represents a decimal digit.
+      \item Registration codes in Estonia are 8 decimal digits long.
+            The following should help you narrow the search space:
+            \begin{itemize}
+              \item Registry codes of companies (AS/OÜ) begin with a \enquote{1}.
+              \item Registry codes of public institutions begin with a \enquote{7}.
+              \item Registry codes of nonprofit organisations (MTÜ) begin with an \enquote{8}.
+              \item Registry codes of foundations (sihtasutus) begin with a \enquote{9}.
+            \end{itemize}
+    \end{itemize}
+    \item Find the certificate serial number of any e-Seal certificate of that company.
+    \begin{itemize}
+      \item Certificates are issued by SK ID Solutions.
+      \item I say \enquote{any}, since an organisation might have multiple e-Seal certificates.
+      \item NB! Not all certificates are for e-Seals (e.g. some are for encryption).
+      \item Do not confuse the certificate serial number with the subject serial (the subject serial is likely the same as the registry code).
+      \item The certificate serial has at least 20 decimal digits (in our case).
+    \end{itemize}
+  \end{enumerate}
+
+  Include in your report:
+  \begin{itemize}
+    \item The registration code of the company/organisation.
+    \item The name of the company.
+    \item The certificate serial as a base10 integer.
+  \end{itemize}
+
+  Push any code you used to solve the task into GitLab.
+  Provide commands and/or screenshots for any steps you performed manually, i.e. that were not solved by your code (if any).
+\end{task}
+
+\begin{task}{OCSP}
+  Query the OCSP response for the e-Seal certificate from the previous task (use TalTech's if you could not solve it).
+
+  Include the command that you used to query and validate the OCSP response in your report.
+  Include the OCSP response (and response only) as \texttt{ocsp.der} in your repository.
+
+  Include also proof (e.g. \texttt{proof.der} or a screenshot in the report) that the intermediate certificate was valid at that time since checking the leaf certificate's OCSP response does not validate the status of the intermediate(s).
+\end{task}
+
+\end{document}
