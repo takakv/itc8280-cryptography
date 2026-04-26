@@ -1,0 +1,210 @@
+\documentclass{homework}
+
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning,calc}
+
+\usepackage{listings}
+
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\usepackage{fancyvrb}
+\fvset{listparameters=\setlength{\topsep}{0pt}\setlength{\partopsep}{0pt}}
+
+\title{05}
+
+\begin{document}
+\maketitle
+
+\textbf{Organisational details}
+
+\begin{itemize}
+  \item Include in your report approximately how long the homework took you.
+  \item You must follow the submission instructions outlined on GitLab.
+  \item If the GitLab pipeline does not succeed, I will not grade your assignment (you will receive 0).
+  The same applies if the Markdown report is illegibly formatted or if you miss the final submission deadline.
+  \item I will provide feedback on Discord and/or GitLab.
+  Check both after receiving your grade.
+  \begin{itemize}
+    \item My initial feedback may be quite minimal as there are so many of you.
+    However, you can request additional feedback.
+    Specific questions are also welcome.
+    \item Do not share the feedback you receive, as this may give others an unfair advantage.
+  \end{itemize}
+  \item Grace clause submission deadline: 10.05.2026 23:59 EEST.
+  \begin{itemize}
+    \item The grace clause applies only if you submit the full work (all tasks) by the soft deadline and the GitLab pipeline succeeds.
+    \item You have one week from receiving the feedback to fix and resubmit your improved work.
+    You may regain up to (but not necessarily) half of the lost points.
+  \end{itemize}
+  \item You may share hints with each other, but not answers or code.
+  Ask questions in the server if they could benefit everyone.
+  \item You may -- and I encourage you to -- ask me questions.
+  \item You may use AI as assistance, but not to solve the tasks themselves.
+  \begin{itemize}
+    \item Acceptable: e.g. checking your understanding, asking how to loop in Python.
+    \item Not acceptable: e.g. generating code logic, library use, or crypto operations.
+    \item If you use AI in any form, including for rewording, state in your report where and what you used it for.
+    \item I recommend asking in the server or contacting me instead of using AI.
+  \end{itemize}
+  \item If I catch you plagiarising, copying, or using AI for code logic, I will report you to the faculty and fail you for the course.
+  \begin{itemize}
+    \item If during the exam you are unable to explain material for which you received homework credit, I may ask you to explain your work.
+    \item If you cannot convince me that the homework is your own work, I will report you to the faculty and fail you.
+  \end{itemize}
+\end{itemize}
+
+\newpage
+
+\begin{center}
+  Theory tasks
+\end{center}
+
+This assignment is more theory-heavy, but its purpose is to get you to try to understand simpler protocols (other than TLS) that rely on cryptography for security.
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item \textbf{Please do not use AI for the theoretical part.}
+  Challenge your understanding and look for additional written sources if the lecture and provided materials are not enough.
+  Critical thinking and clear communication are skills -- use them or lose them.
+  \item You must reference all external materials you rely on, including AI tools, if you choose to use them anyway.
+\end{itemize}
+
+\begin{task}{FIDO2: WebAuthn + CTAP2}
+  \textit{Preface.}
+  You have hopefully heard of passkeys, and hopefully you are even using them in some places.
+  If you have used passkeys before, you may have noticed that what is labelled as \enquote{passkey} or \enquote{security key} is not always consistent, or does not behave consistently.
+
+  Because we really should not be using passwords in 2026, at least not for any form of secure web authentication, FIDO2 is something you must be aware of (and use where possible and reasonable).
+  Note that FIDO2 can be used for SSH, and also to log in to e.g. Windows.
+  For X.509-based certificate login, consider \href{https://www.idmanagement.gov/university/piv/}{PIV}.
+
+  \textit{Task.}
+  Read through \href{https://michaelwaterman.nl/2025/04/02/how-fido2-works-a-technical-deep-dive/}{\textit{How FIDO2 works, a technical deep dive}} from the section \enquote{FIDO2 flow explained} onwards.
+  
+  If you do not like the way that information is presented there, consider this alternative:
+  \begin{itemize}
+    \item Read through \href{https://developers.yubico.com/Passkeys/Quick_overview_of_WebAuthn_FIDO2_and_CTAP.html}{\textit{Quick overview of WebAuthn FIDO2 and CTAP}} by Yubico.
+    \item Then through \href{https://www.webauthn.me/introduction}{\textit{Web Authentication}} intro by auth0 (stop at the API section).
+    \item If things are still confusing, look at the diagrams in \href{https://duo.com/blog/webauthn-passwordless-fido2-explained-componens-passwordless-architecture}{\textit{WebAuthn, passwordless and FIDO2 explained}} by Cisco.
+  \end{itemize}
+
+  For some of the following questions, this resource might be useful: \href{https://auth0.com/docs/secure/multi-factor-authentication/fido-authentication-with-webauthn}{\textit{FIDO Authentication with WebAuthn}}.
+
+  Answer the following:
+  \begin{itemize}
+    \item What is the difference between WebAuthn and CTAP2?
+    \item Why is FIDO2 phishing resistant?
+    \item Why can I not log-in on your behalf on my machine by e.g. sending you the QR code that appears on my machine during cross-device login to Discord and getting you to scan it?
+    \item What is the difference between platform and roaming authenticators, and why should you never secure an account with only a single roaming authenticator (and no other methods)?
+    \item Is the protection offered by FIDO2 passkeys relevant if you also have username + password with SMS-based 2FA enabled for the same account?
+    \item If you use a password manager, does your password manager support passkeys?
+    \item Does your operating system support passkeys and if so, are they synced between your devices or are they lost if your computer dies?
+  \end{itemize}
+
+  \textit{Notes for real life.}
+  \begin{itemize}
+    \item If you are going to be using passkeys, familiarise yourself with the difference between discoverable and non-discoverable credentials.
+    Consider also user-verification requirements (e.g. PIN or no PIN when using it) if you have the option to configure it yourself (e.g. for SSH with FIDO2 on Yubikeys).
+
+    \item If you are going to be setting up passkeys at work, also familiarise yourself with passkey attestation.
+
+    \item Want to test out passkeys?
+    Check out {\small\url{https://webauthn.io}}
+  \end{itemize}
+\end{task}
+
+\begin{task}{eMRTD}
+  For this task, answer the following questions based on \textit{\href{https://blog.trailofbits.com/2025/10/31/the-cryptography-behind-electronic-passports/}{this blog post on electronic passports}}.
+  You need not (but I recommend that you) read through the entire article.
+  \begin{itemize}
+    \item What types of biometric data are included in your passport?
+    \item Is this data protected?
+    If so, how and by whom can it be extracted?
+    \item How is the authenticity of passports verified?
+    \item Why should you not leave your passport unattended?
+  \end{itemize}
+
+  There may be a question of similar style about passports/the EE ID card in the exam.
+\end{task}
+
+\begin{task}{Your thoughts (optional)}
+  This is an \emph{optional} task, but I'd appreciate it if you at least answer the first question.
+  You can also choose to answer only some of the questions.
+  It's not anonymous (clearly) but this is because I might want to ask you questions if you say something particularly intriguing.
+  It's fine to say negative things about the course and/or me, I only ask for the answer to be constructive.
+
+  \begin{itemize}
+    \item What's your mood? (select up to 2)
+    \begin{enumerate}
+      \item You killed crypto for me, I hope to never deal with it!
+      \item I liked crypto more before this class.
+      \item It was ok, but that's the last I'll deal with it.
+      \item It was interesting, but that's the last I'll deal with it.
+      \item I like crypto more after this class.
+      \item It was interesting, I may pursue crypto in the future.
+      \item I aspire to be the next Daniel Bernstein.
+    \end{enumerate}
+    \item Do you feel like this course has been useful for you? (it's okay to say no)
+    \item What has/have been the hardest topic(s)?
+    \item What would you have liked to see more/less of?
+    \item What would you have liked to be different?
+    \item Any additional thoughts/suggestions for future iterations of this class?
+  \end{itemize}
+\end{task}
+
+\newpage
+\setcounter{task}{0}
+
+\begin{center}
+  Practical tasks
+\end{center}
+
+\textbf{Additional instructions}
+
+\begin{itemize}
+  \item The GitLab pipeline must succeed before you submit your assignment.
+\end{itemize}
+
+\begin{task}{Hello, certificate}
+  Create a CSR and request it to be signed by the Discord bot, as specified in Task 1 of the 10\textsuperscript{th} practice session.
+
+  Include the certificate as \texttt{certificate.pem} in your repository.
+\end{task}
+
+\begin{task}{Ready, Steady, AAAAAAAAH}
+  Consider the 256-bit RSA public key
+  \begin{Verbatim}
+-----BEGIN PUBLIC KEY-----
+MDswDQYJKoZIhvcNAQEBBQADKgAwJwIgfTG7y/yn43ilszaU6KSMKiLzQMQKsj+v
+1zGAbMJu62cCAwEAAQ==
+-----END PUBLIC KEY-----
+  \end{Verbatim}
+
+  Sign the message \texttt{message.txt} with RSASSA-PSS such that the signature verifies under the provided public key.
+  Include the signature as \texttt{message.sig} in your repository.
+  
+  The signature parameters must be:
+  \begin{itemize}
+    \item SHA-224 for the data hashing algorithm
+    \item SHA-224 for the hashing within MGF1
+    \item PSS salt length of 2 bytes
+  \end{itemize}
+
+  These are the largest (standardised) parameters which will fit within the 256-bit constraint.
+  You should of course not use these in real life.
+
+  Describe your solution in the report.
+  Add any code used/written to your repository and/or include used commands in your report.
+
+  Verify that the signature verifies under the public key before submitting!
+\end{task}
+
+\end{document}
